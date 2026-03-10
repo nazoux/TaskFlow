@@ -27,7 +27,8 @@ export default function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'Registration failed');
+        const detail = data.errors?.[0]?.msg;
+        setError(detail || data.message || 'Registration failed');
         return;
       }
 
