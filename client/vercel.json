@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/auth/:path*",
+      "destination": "https://taskflow-production-47d4.up.railway.app/auth/:path*"
+    },
+    {
+      "source": "/tasks/:path*",
+      "destination": "https://taskflow-production-47d4.up.railway.app/tasks/:path*"
+    },
+    {
+      "source": "/categories/:path*",
+      "destination": "https://taskflow-production-47d4.up.railway.app/categories/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
