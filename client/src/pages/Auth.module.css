@@ -1,0 +1,197 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #e8edf5;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.logoIcon {
+  width: 36px;
+  height: 36px;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a2b4a;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a2b4a;
+  margin-bottom: 28px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #718096;
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Form */
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a2b4a;
+  margin-bottom: 8px;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.inputWrapper input {
+  width: 100%;
+  padding: 13px 44px 13px 16px;
+  background: #f0f4fa;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #1a2b4a;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.inputWrapper input::placeholder {
+  color: #a0aec0;
+}
+
+.inputWrapper input:focus {
+  border-color: #4a7cbd;
+  background: #fff;
+}
+
+.inputIcon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  pointer-events: none;
+  display: flex;
+}
+
+/* Forgot link */
+.forgot {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  color: #4a7cbd;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+/* Error */
+.error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Success */
+.successBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+/* Button */
+.btnPrimary {
+  width: 100%;
+  padding: 14px;
+  background: #4a7cbd;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #3a6aad;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Switch link */
+.switchText {
+  text-align: center;
+  font-size: 14px;
+  color: #718096;
+  margin-top: 20px;
+}
+
+.switchText a {
+  color: #4a7cbd;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.switchText a:hover {
+  text-decoration: underline;
+}
+
+/* Page label */
+.pageLabel {
+  margin-top: 28px;
+  font-size: 14px;
+  color: #718096;
+}
+
+.pageLabel span {
+  font-weight: 600;
+  color: #4a5568;
+}
