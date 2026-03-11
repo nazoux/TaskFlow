@@ -74,12 +74,91 @@
 }
 .logoutBtn:hover { border-color: #ef4444; color: #ef4444; }
 
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.hamburger:hover { background: #f1f5f9; }
+
+.bar {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #1a2b4a;
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.barOpen1 { display: block; height: 2px; width: 100%; background: #1a2b4a; border-radius: 2px; transform: translateY(7px) rotate(45deg); }
+.barOpen2 { display: block; height: 2px; width: 100%; background: #1a2b4a; border-radius: 2px; opacity: 0; }
+.barOpen3 { display: block; height: 2px; width: 100%; background: #1a2b4a; border-radius: 2px; transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile menu */
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  flex-direction: column;
+  padding: 8px 16px 16px;
+  z-index: 99;
+}
+
+.mobileLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #4a5568;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.mobileLink:hover { background: #f1f5f9; color: #1a2b4a; }
+.mobileLinkActive { background: #eff6ff; color: #3b82f6; }
+
+.mobileLogout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+.mobileLogout:hover { background: #fef2f2; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .navbar { padding: 0 16px; }
+  .navbar { padding: 0 16px; position: relative; }
   .navLeft { gap: 12px; }
   .nav { display: none; }
   .navUser span { display: none; }
-  .logoutBtn span { display: none; }
-  .logoutBtn { padding: 6px 10px; }
+  .logoutBtn { display: none; }
+  .hamburger { display: flex; }
+  .mobileMenu { display: flex; }
 }
