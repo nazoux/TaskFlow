@@ -1,4 +1,4 @@
-const { Task, Category } = require("../models");
+const { Task, Category, Expense } = require("../models");
 const { TASK_STATUSES, TASK_PRIORITIES } = require("../utils/task-values");
 
 exports.getTasks = async (req, res) => {
@@ -52,7 +52,7 @@ exports.getTaskById = async (req, res) => {
 
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, status, priority, due_date, category_id } = req.body;
+    const { title, description, status, priority, due_date, category_id, budget } = req.body;
 
     if (!title || !status) {
       return res.status(400).json({
@@ -95,6 +95,7 @@ exports.createTask = async (req, res) => {
       status,
       priority,
       due_date,
+      budget: budget !== undefined ? budget : null,
       created_at: new Date(),
       updated_at: null,
       user_id: req.userId,
@@ -112,7 +113,7 @@ exports.createTask = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, due_date, category_id } = req.body;
+    const { title, description, status, priority, due_date, category_id, budget } = req.body;
 
     const task = await Task.findOne({
       where: {
@@ -154,15 +155,39 @@ exports.updateTask = async (req, res) => {
       }
     }
 
+    const previousStatus = task.status;
+    const newStatus = status ?? task.status;
+    const newBudget = budget !== undefined ? budget : task.budget;
+
     await task.update({
       title: title ?? task.title,
       description: description ?? task.description,
-      status: status ?? task.status,
+      status: newStatus,
       priority: priority ?? task.priority,
       due_date: due_date ?? task.due_date,
+      budget: newBudget,
       category_id: category_id === undefined ? task.category_id : category_id,
       updated_at: new Date()
     });
+
+    if (previousStatus !== "done" && newStatus === "done" && newBudget) {
+      const now = new Date();
+      await Expense.create({
+        user_id: req.userId,
+        task_id: task.id,
+        category_id: category_id === undefined ? task.category_id : category_id,
+        amount: newBudget,
+        label: title ?? task.title,
+        expense_date: now.toISOString().split("T")[0],
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        created_at: now
+      });
+    }
+
+    if (previousStatus === "done" && newStatus !== "done") {
+      await Expense.destroy({ where: { task_id: task.id } });
+    }
 
     res.json({
       message: "Task updated",

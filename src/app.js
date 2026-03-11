@@ -8,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 const authRoutes = require("./routes/auth.routes");
 const taskRoutes = require("./routes/task.routes");
 const categoryRoutes = require("./routes/category.routes");
+const financeRoutes = require("./routes/finance.routes");
 const swaggerSpec = require("./config/swagger");
 
 const app = express();
@@ -36,6 +37,7 @@ app.use("/auth/register", authLimiter);
 app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/finance", financeRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

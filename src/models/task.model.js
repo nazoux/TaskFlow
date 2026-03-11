@@ -39,6 +39,10 @@ const Task = sequelize.define("Task", {
   category_id: {
     type: DataTypes.INTEGER,
     allowNull: true
+  },
+  budget: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
   }
 }, {
   tableName: "tasks",

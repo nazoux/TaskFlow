@@ -8,6 +8,7 @@ export default defineConfig({
       '/auth': 'http://localhost:3000',
       '/tasks': 'http://localhost:3000',
       '/categories': 'http://localhost:3000',
+      '/finance': 'http://localhost:3000',
     }
   }
 })

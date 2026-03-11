@@ -48,6 +48,12 @@ export default function Navbar({ active }) {
             </svg>
             Profile
           </Link>
+          <Link to="/finance" className={`${styles.navLink} ${active === 'finance' ? styles.navActive : ''}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+            Finance
+          </Link>
         </nav>
       </div>
 
@@ -65,7 +71,6 @@ export default function Navbar({ active }) {
         </Link>
         <button onClick={logout} className={styles.logoutBtn}>Logout</button>
 
-        {/* Hamburger mobile */}
         <button className={styles.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
           <span className={menuOpen ? styles.barOpen1 : styles.bar}/>
           <span className={menuOpen ? styles.barOpen2 : styles.bar}/>
@@ -73,7 +78,6 @@ export default function Navbar({ active }) {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div className={styles.mobileMenu}>
           <Link to="/dashboard" className={`${styles.mobileLink} ${active === 'dashboard' ? styles.mobileLinkActive : ''}`} onClick={() => setMenuOpen(false)}>
@@ -94,6 +98,12 @@ export default function Navbar({ active }) {
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
             Profile
+          </Link>
+          <Link to="/finance" className={`${styles.mobileLink} ${active === 'finance' ? styles.mobileLinkActive : ''}`} onClick={() => setMenuOpen(false)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+            Finance
           </Link>
           <button onClick={() => { setMenuOpen(false); logout(); }} className={styles.mobileLogout}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

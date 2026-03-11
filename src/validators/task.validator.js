@@ -26,7 +26,12 @@ const createTaskValidator = [
   body("category_id")
     .optional({ nullable: true })
     .isInt({ min: 1 })
-    .withMessage("category_id must be a positive integer")
+    .withMessage("category_id must be a positive integer"),
+
+  body("budget")
+    .optional({ nullable: true })
+    .isFloat({ min: 0 })
+    .withMessage("budget must be a positive number")
 ];
 
 const updateTaskValidator = [
@@ -63,7 +68,12 @@ const updateTaskValidator = [
       }
 
       return true;
-    })
+    }),
+
+  body("budget")
+    .optional({ nullable: true })
+    .isFloat({ min: 0 })
+    .withMessage("budget must be a positive number")
 ];
 
 module.exports = {

@@ -146,7 +146,6 @@ export default function Dashboard() {
     setSelected(allSelected ? new Set() : new Set(paginated.map(t => t.id)));
   }
 
-  // Stats
   const stats = {
     total: tasks.length,
     done: tasks.filter(t => t.status === 'done').length,
@@ -155,7 +154,6 @@ export default function Dashboard() {
   const progress = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
   const catMap = Object.fromEntries(categories.map(c => [String(c.id), c]));
 
-  // Filter + sort pipeline
   let filtered = tasks.filter(t => {
     const statusOk = statusFilter === 'all' || t.status === statusFilter;
     const catOk = categoryFilter === 'all' || String(t.category_id) === categoryFilter;
@@ -193,7 +191,6 @@ export default function Dashboard() {
 
       <main className={styles.main}>
 
-        {/* Hero greeting */}
         <div className={styles.hero}>
           <div className={styles.heroText}>
             <p className={styles.greeting}>Hello, <strong>{user.username || 'User'}</strong> 👋</p>
@@ -215,7 +212,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Stats */}
         <div className={styles.statsGrid}>
           <div className={`${styles.statCard} ${styles.statCardBlue}`}>
             <div className={styles.statIconWrap}>
@@ -256,7 +252,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Progress bar */}
         {stats.total > 0 && (
           <div className={styles.progressSection}>
             <div className={styles.progressHeader}>
@@ -269,13 +264,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* 2-col layout */}
         <div className={styles.contentGrid}>
-
-          {/* ── Left column: tasks ── */}
           <div className={styles.colMain}>
-
-            {/* Toolbar */}
             <div className={styles.toolbar}>
               <div className={styles.toolbarLeft}>
                 <div className={styles.searchWrapper}>
@@ -327,7 +317,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Bulk bar */}
             {selected.size > 0 && (
               <div className={styles.bulkBar}>
                 <span>{selected.size} task{selected.size > 1 ? 's' : ''} selected</span>
@@ -341,7 +330,6 @@ export default function Dashboard() {
               </div>
             )}
 
-        {/* List view */}
         {view === 'list' && (
           <div className={styles.tableWrapper}>
             {loading ? (
@@ -507,17 +495,13 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Kanban view */}
         {view === 'kanban' && !loading && (
           <KanbanView tasks={filtered} catMap={catMap} onEdit={openEdit} onDelete={deleteTask} onStatusChange={updateTaskStatus} />
         )}
 
-          </div>{/* end colMain */}
+          </div>
 
-          {/* ── Right sidebar ── */}
           <aside className={styles.sidebar}>
-
-            {/* Due this week */}
             <div className={styles.sideWidget}>
               <h3 className={styles.sideWidgetTitle}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -553,7 +537,6 @@ export default function Dashboard() {
               })()}
             </div>
 
-            {/* Categories breakdown */}
             <div className={styles.sideWidget}>
               <h3 className={styles.sideWidgetTitle}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -588,9 +571,8 @@ export default function Dashboard() {
               )}
             </div>
 
-          </aside>{/* end sidebar */}
-
-        </div>{/* end contentGrid */}
+          </aside>
+        </div>
 
       </main>
 

@@ -8,6 +8,7 @@ const defaultForm = {
   priority: '',
   due_date: '',
   category_id: '',
+  budget: '',
 };
 
 export default function TaskModal({ task, categories, token, onClose }) {
@@ -25,6 +26,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
         priority: task.priority || '',
         due_date: task.due_date ? task.due_date.slice(0, 10) : '',
         category_id: task.category_id != null ? String(task.category_id) : '',
+        budget: task.budget != null ? String(task.budget) : '',
       });
     }
   }, [task]);
@@ -45,6 +47,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
       priority: form.priority || undefined,
       due_date: form.due_date || undefined,
       category_id: form.category_id ? Number(form.category_id) : null,
+      budget: form.budget !== '' ? parseFloat(form.budget) : null,
     };
 
     try {
@@ -157,6 +160,20 @@ export default function TaskModal({ task, categories, token, onClose }) {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="budget">Budget alloué (€)</label>
+            <input
+              id="budget"
+              name="budget"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="ex: 150.00"
+              value={form.budget}
+              onChange={handleChange}
+            />
           </div>
 
           <div className={styles.modalFooter}>
