@@ -338,3 +338,10 @@
   font-weight: 500;
   color: #1a2b4a;
 }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .main { padding: 16px; }
+  .hero { flex-direction: column; padding: 20px; gap: 14px; }
+  .cols { grid-template-columns: 1fr; }
+}
