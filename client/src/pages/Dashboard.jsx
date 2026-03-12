@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import TaskModal from '../components/TaskModal';
 import KanbanView from '../components/KanbanView';
 import { useToast, ToastContainer } from '../components/Toast';
@@ -318,7 +319,7 @@ export default function Dashboard() {
                 </select>
                 <select className={styles.select} value={categoryFilter} onChange={e => handleCategoryFilter(e.target.value)}>
                   <option value="all">{t.dashboard.allCategories}</option>
-                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+                  {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name === 'Misc' ? t.finance.misc : c.name}</option>)}
                 </select>
               </div>
               <div className={styles.toolbarRight}>
@@ -440,7 +441,7 @@ export default function Dashboard() {
                                   {cat && (
                                     <span className={styles.catTag}>
                                       {cat.color && <span className={styles.catDot} style={{ background: cat.color }} />}
-                                      {cat.name}
+                                      {cat.name === 'Misc' ? t.finance.misc : cat.name}
                                     </span>
                                   )}
                                   {task.description && (
@@ -633,6 +634,7 @@ export default function Dashboard() {
       )}
 
       <ToastContainer toasts={toasts} remove={removeToast} />
+      <Footer />
     </div>
   );
 }

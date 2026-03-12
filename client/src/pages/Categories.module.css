@@ -1,7 +1,13 @@
 .layout {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(160deg, #e8edf5 0%, #dde5f0 50%, #e4eaf4 100%);
   background-attachment: fixed;
+}
+
+.layout > * {
+  width: 100%;
 }
 
 .hero {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import styles from './Finance.module.css';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
@@ -477,6 +478,7 @@ export default function Finance() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

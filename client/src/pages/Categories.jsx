@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { HexColorPicker } from 'react-colorful';
 import { useToast, ToastContainer } from '../components/Toast';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import styles from './Categories.module.css';
 import { useLang } from '../contexts/LangContext';
 
@@ -225,7 +226,7 @@ export default function Categories() {
                     </svg>
                   </div>
                   <div className={styles.catCardInfo}>
-                    <span className={styles.catCardName}>{cat.name}</span>
+                    <span className={styles.catCardName}>{cat.name === 'Misc' ? t.finance.misc : cat.name}</span>
                     <span className={styles.catCardColor}>
                       {t.categories.taskCount(taskCounts[cat.id] || 0)}
                     </span>
@@ -262,6 +263,7 @@ export default function Categories() {
       )}
 
       <ToastContainer toasts={toasts} remove={remove} />
+      <Footer />
     </div>
   );
 }

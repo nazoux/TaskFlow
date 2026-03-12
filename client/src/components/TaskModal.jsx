@@ -158,7 +158,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
               <select id="category_id" name="category_id" value={form.category_id} onChange={handleChange}>
                 <option value="">{t.taskModal.none}</option>
                 {categories.map(c => (
-                  <option key={c.id} value={String(c.id)}>{c.name}</option>
+                  <option key={c.id} value={String(c.id)}>{c.name === 'Misc' ? t.finance.misc : c.name}</option>
                 ))}
               </select>
             </div>

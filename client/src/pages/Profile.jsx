@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast, ToastContainer } from '../components/Toast';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import styles from './Profile.module.css';
 import { useLang } from '../contexts/LangContext';
 
@@ -310,6 +311,7 @@ export default function Profile() {
       </main>
 
       <ToastContainer toasts={toasts} remove={removeToast} />
+      <Footer />
     </div>
   );
 }

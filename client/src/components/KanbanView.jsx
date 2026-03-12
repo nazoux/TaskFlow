@@ -38,6 +38,7 @@ function CardContent({ task, catMap, onEdit, onDelete, isOverlay }) {
   const overdue = isOverdue(task);
   const cat = catMap[String(task.category_id)];
   const prio = PRIORITY_COLORS[task.priority];
+  const { t } = useLang();
 
   return (
     <div className={`${styles.card} ${overdue ? styles.cardOverdue : ''} ${isOverlay ? styles.cardOverlayStyle : ''}`}>
@@ -92,7 +93,7 @@ function CardContent({ task, catMap, onEdit, onDelete, isOverlay }) {
           {cat && (
             <span className={styles.cardCat}>
               {cat.color && <span className={styles.catDot} style={{ background: cat.color }} />}
-              {cat.name}
+              {cat.name === 'Misc' ? t.finance.misc : cat.name}
             </span>
           )}
         </div>
