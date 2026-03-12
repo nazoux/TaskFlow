@@ -117,8 +117,8 @@ exports.getByCategory = async (req, res) => {
 
     const data = rows.map(r => ({
       categoryId: r.category_id,
-      categoryName: r.Category ? r.Category.name : "Sans catégorie",
-      categoryColor: r.Category ? r.Category.color : "#94a3b8",
+      categoryName: r.Category ? r.Category.name : "Uncategorized",
+      categoryColor: r.Category ? r.Category.color : "#cbd5e1",
       total: parseFloat(r.total)
     }));
 

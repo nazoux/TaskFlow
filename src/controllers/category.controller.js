@@ -2,16 +2,15 @@ const { Category, Task } = require("../models");
 
 exports.getCategories = async (req, res) => {
   try {
+    // Ensure "Misc" default category exists for this user
+    const miscExists = await Category.findOne({ where: { user_id: req.userId, name: "Misc" } });
+    if (!miscExists) {
+      await Category.create({ name: "Misc", color: "#f59e0b", user_id: req.userId });
+    }
+
     const categories = await Category.findAll({
       where: { user_id: req.userId }
     });
-
-    if (categories.length === 0) {
-      return res.status(200).json({
-        message: "No categories found",
-        data: []
-      });
-    }
 
     res.json({
       count: categories.length,

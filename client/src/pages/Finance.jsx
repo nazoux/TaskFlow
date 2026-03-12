@@ -31,11 +31,13 @@ export default function Finance() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [defaultCategoryId, setDefaultCategoryId] = useState('');
 
   const [budgetForm, setBudgetForm] = useState({ amount: '', label: '' });
   const [expenseForm, setExpenseForm] = useState({ label: '', amount: '', expense_date: '', category_id: '' });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 
@@ -56,7 +58,10 @@ export default function Finance() {
       if (expRes.ok) setExpenses(await expRes.json());
       if (catsRes.ok) {
         const d = await catsRes.json();
-        setCategories(d.data || []);
+        const cats = d.data || [];
+        setCategories(cats);
+        const misc = cats.find(c => c.name === "Misc");
+        if (misc) setDefaultCategoryId(String(misc.id));
       }
     } finally {
       setLoading(false);
@@ -143,8 +148,8 @@ export default function Finance() {
   }
 
   async function deleteExpense(id) {
-    if (!confirm(t.finance.deleteConfirm)) return;
     await fetch(`/finance/expenses/${id}`, { method: 'DELETE', headers });
+    setConfirmDeleteId(null);
     fetchAll();
   }
 
@@ -212,7 +217,7 @@ export default function Finance() {
               </svg>
               {t.finance.setSalary}
             </button>
-            <button className={styles.heroBtnSecondary} onClick={() => { setExpenseForm({ label: '', amount: '', expense_date: new Date().toISOString().slice(0, 10), category_id: '' }); setFormError(''); setShowExpenseModal(true); }}>
+            <button className={styles.heroBtnSecondary} onClick={() => { setExpenseForm({ label: '', amount: '', expense_date: new Date().toISOString().slice(0, 10), category_id: defaultCategoryId }); setFormError(''); setShowExpenseModal(true); }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
@@ -270,7 +275,7 @@ export default function Finance() {
                   {byCategory.map((entry, i) => (
                     <div key={i} className={styles.donutLegendItem}>
                       <span className={styles.donutDot} style={{ background: entry.categoryColor || COLORS[i % COLORS.length] }} />
-                      <span className={styles.donutName}>{entry.categoryName}</span>
+                      <span className={styles.donutName}>{entry.categoryName === 'Misc' ? t.finance.misc : entry.categoryName}</span>
                       <span className={styles.donutAmount}>{fmt(entry.total)} €</span>
                     </div>
                   ))}
@@ -347,7 +352,7 @@ export default function Finance() {
                       {exp.Category ? (
                         <span className={styles.catTag}>
                           <span className={styles.catDot} style={{ background: exp.Category.color }} />
-                          {exp.Category.name}
+                          {exp.Category.name === 'Misc' ? t.finance.misc : exp.Category.name}
                         </span>
                       ) : <span className={styles.nocat}>—</span>}
                     </td>
@@ -361,7 +366,7 @@ export default function Finance() {
                               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                           </button>
-                          <button className={styles.deleteBtn} onClick={() => deleteExpense(exp.id)}>
+                          <button className={styles.deleteBtn} onClick={() => setConfirmDeleteId(exp.id)}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/>
                             </svg>
@@ -443,7 +448,7 @@ export default function Finance() {
                 <label>{t.finance.categoryField}</label>
                 <select value={expenseForm.category_id} onChange={e => setExpenseForm(f => ({ ...f, category_id: e.target.value }))}>
                   <option value="">{t.finance.noneOption}</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name === 'Misc' ? t.finance.misc : c.name}</option>)}
                 </select>
               </div>
               <div className={styles.modalFooter}>
@@ -451,6 +456,24 @@ export default function Finance() {
                 <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? t.finance.saving : editingExpense ? t.finance.edit : t.finance.add}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {confirmDeleteId && (
+        <div className={styles.overlay} onClick={() => setConfirmDeleteId(null)}>
+          <div className={styles.confirmModal} onClick={e => e.stopPropagation()}>
+            <div className={styles.confirmIcon}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/>
+              </svg>
+            </div>
+            <h3 className={styles.confirmTitle}>{t.finance.deleteConfirmTitle}</h3>
+            <p className={styles.confirmText}>{t.finance.deleteConfirmText}</p>
+            <div className={styles.confirmFooter}>
+              <button className={styles.cancelBtn} onClick={() => setConfirmDeleteId(null)}>{t.finance.cancel}</button>
+              <button className={styles.deleteBtnConfirm} onClick={() => deleteExpense(confirmDeleteId)}>{t.finance.delete}</button>
+            </div>
           </div>
         </div>
       )}

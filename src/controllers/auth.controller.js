@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const { User } = require("../models");
+const { User, Category } = require("../models");
 const { sendResetEmail } = require("../utils/mailer");
 
 exports.register = async (req, res) => {
@@ -35,6 +35,9 @@ exports.register = async (req, res) => {
       password_hash: hashedPassword,
       created_at: new Date()
     });
+
+    // Create default "Misc" category for new users
+    await Category.create({ name: "Misc", color: "#f59e0b", user_id: user.id });
 
     res.status(201).json({
       message: "User created",
@@ -171,7 +174,7 @@ exports.forgotPassword = async (req, res) => {
 
     const token = crypto.randomBytes(32).toString("hex");
     user.reset_token = token;
-    user.reset_token_expires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+    user.reset_token_expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     await user.save();
 
     const resetLink = `${process.env.FRONTEND_URL}reset-password?token=${token}`;
