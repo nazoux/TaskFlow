@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import { useLang } from '../contexts/LangContext';
 
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useLang();
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,13 +30,13 @@ export default function Register() {
 
       if (!res.ok) {
         const detail = data.errors?.[0]?.msg;
-        setError(detail || data.message || 'Registration failed');
+        setError(detail || data.message || t.auth.registrationFailed);
         return;
       }
 
       navigate('/login');
     } catch {
-      setError('Network error. Please try again.');
+      setError(t.auth.networkError);
     } finally {
       setLoading(false);
     }
@@ -53,19 +55,19 @@ export default function Register() {
           <span className={styles.logoText}>TaskFlow</span>
         </div>
 
-        <h1 className={styles.title}>Sign up</h1>
+        <h1 className={styles.title}>{t.auth.signup}</h1>
 
         {error && <div className={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">{t.auth.username}</label>
             <div className={styles.inputWrapper}>
               <input
                 id="username"
                 type="text"
                 name="username"
-                placeholder="johndoe"
+                placeholder={t.auth.usernamePlaceholder}
                 autoComplete="username"
                 value={form.username}
                 onChange={handleChange}
@@ -81,13 +83,13 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t.auth.email}</label>
             <div className={styles.inputWrapper}>
               <input
                 id="email"
                 type="email"
                 name="email"
-                placeholder="john.doe@example.com"
+                placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
                 value={form.email}
                 onChange={handleChange}
@@ -103,13 +105,13 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t.auth.password}</label>
             <div className={styles.inputWrapper}>
               <input
                 id="password"
                 type="password"
                 name="password"
-                placeholder="••••••••••••"
+                placeholder={t.auth.passwordPlaceholder}
                 autoComplete="new-password"
                 value={form.password}
                 onChange={handleChange}
@@ -125,17 +127,15 @@ export default function Register() {
           </div>
 
           <button type="submit" className={styles.btnPrimary} disabled={loading}>
-            {loading ? 'Creating account...' : 'Create account'}
+            {loading ? t.auth.creatingAccount : t.auth.createAccount}
           </button>
         </form>
 
         <p className={styles.switchText}>
-          Already have an account? <a href="/login">Log in</a>
+          <a href="/login">{t.auth.alreadyAccount}</a>
         </p>
 
       </div>
-
-      <p className={styles.pageLabel}><span>Register</span> Page</p>
     </div>
   );
 }

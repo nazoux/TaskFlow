@@ -1,7 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const { User } = require("../models");
+const { sendResetEmail } = require("../utils/mailer");
 
 exports.register = async (req, res) => {
   try {
@@ -155,6 +157,53 @@ exports.updateMe = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email required" });
+
+    const user = await User.findOne({ where: { email } });
+    // Always return 200 to avoid email enumeration
+    if (!user) return res.json({ message: "If this email exists, a reset link has been sent." });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    user.reset_token = token;
+    user.reset_token_expires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+    await user.save();
+
+    const resetLink = `${process.env.FRONTEND_URL}reset-password?token=${token}`;
+    await sendResetEmail(email, resetLink);
+
+    res.json({ message: "If this email exists, a reset link has been sent." });
+  } catch (error) {
+    console.error("forgotPassword error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ message: "Token and password required" });
+
+    const user = await User.findOne({ where: { reset_token: token } });
+    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+
+    if (new Date() > user.reset_token_expires) {
+      return res.status(400).json({ message: "Token expired" });
+    }
+
+    user.password_hash = await bcrypt.hash(password, 10);
+    user.reset_token = null;
+    user.reset_token_expires = null;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 

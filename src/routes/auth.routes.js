@@ -76,6 +76,9 @@ router.post(
   authController.login
 );
 
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
+
 router.get("/me", authMiddleware, authController.getMe);
 router.put("/me", authMiddleware, authController.updateMe);
 router.post("/me/avatar", authMiddleware, upload.single("avatar"), authController.uploadAvatar);

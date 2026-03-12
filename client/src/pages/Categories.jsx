@@ -4,6 +4,7 @@ import { HexColorPicker } from 'react-colorful';
 import { useToast, ToastContainer } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import styles from './Categories.module.css';
+import { useLang } from '../contexts/LangContext';
 
 const PRESET_COLORS = [
   '#ef4444','#f97316','#f59e0b','#eab308',
@@ -19,6 +20,7 @@ function CategoryModal({ category, token, onClose }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const { t } = useLang();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -46,7 +48,7 @@ function CategoryModal({ category, token, onClose }) {
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose(false)}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2>{isEdit ? 'Edit Category' : 'New Category'}</h2>
+          <h2>{isEdit ? t.categories.editCategory : t.categories.newCategory}</h2>
           <button className={styles.closeBtn} onClick={() => onClose(false)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -56,14 +58,14 @@ function CategoryModal({ category, token, onClose }) {
         {error && <div className={styles.error}>{error}</div>}
         <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div className={styles.field}>
-            <label htmlFor="name">Name <span className={styles.required}>*</span></label>
+            <label htmlFor="name">{t.categories.nameField} <span className={styles.required}>*</span></label>
             <input
-              id="name" type="text" placeholder="Category name"
+              id="name" type="text" placeholder={t.categories.namePlaceholder}
               value={name} onChange={e => setName(e.target.value)} required
             />
           </div>
           <div className={styles.field}>
-            <label>Color</label>
+            <label>{t.categories.colorField}</label>
             <div className={styles.colorPickerWrap}>
               <div className={styles.presetGrid}>
                 {PRESET_COLORS.map(c => (
@@ -89,9 +91,9 @@ function CategoryModal({ category, token, onClose }) {
             </div>
           </div>
           <div className={styles.modalFooter}>
-            <button type="button" className={styles.cancelBtn} onClick={() => onClose(false)}>Cancel</button>
+            <button type="button" className={styles.cancelBtn} onClick={() => onClose(false)}>{t.categories.cancel}</button>
             <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Save changes' : 'Create'}
+              {loading ? t.categories.saving : isEdit ? t.categories.saveChanges : t.categories.create}
             </button>
           </div>
         </form>
@@ -104,6 +106,7 @@ export default function Categories() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const { toasts, toast, remove } = useToast();
+  const { t } = useLang();
 
   const [categories, setCategories] = useState([]);
   const [taskCounts, setTaskCounts] = useState({});
@@ -144,20 +147,20 @@ export default function Categories() {
   }
 
   async function deleteCategory(id) {
-    if (!window.confirm('Delete this category? Tasks in it will be uncategorized.')) return;
+    if (!window.confirm(t.categories.deleteConfirm)) return;
     const res = await fetch(`/categories/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     if (res.ok) {
-      toast('Category deleted');
+      toast(t.categories.categoryDeleted);
       fetchCategories();
     } else {
-      toast('Failed to delete', 'error');
+      toast(t.categories.failedDelete, 'error');
     }
   }
 
   function onModalClose(saved) {
     setModalOpen(false);
     if (saved) {
-      toast(editingCat ? 'Category updated' : 'Category created');
+      toast(editingCat ? t.categories.categoryUpdated : t.categories.categoryCreated);
       fetchCategories();
     }
     setEditingCat(null);
@@ -173,17 +176,17 @@ export default function Categories() {
         <div className={styles.heroDecor1} />
         <div className={styles.heroDecor2} />
         <div className={styles.heroText}>
-          <p className={styles.heroLabel}>Manage</p>
-          <h1 className={styles.heroTitle}>Your Categories</h1>
+          <p className={styles.heroLabel}>{t.categories.heroLabel}</p>
+          <h1 className={styles.heroTitle}>{t.categories.heroTitle}</h1>
           <p className={styles.heroSub}>
             {loading ? '—' : categories.length === 0
-              ? 'No categories yet — create your first one'
-              : `${categories.length} categor${categories.length > 1 ? 'ies' : 'y'} created`}
+              ? t.categories.noCategories
+              : t.categories.categoriesCount(categories.length)}
           </p>
         </div>
         <button className={styles.heroBtn} onClick={() => { setEditingCat(null); setModalOpen(true); }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          New Category
+          {t.categories.newCategory}
         </button>
       </div>
         {loading ? (
@@ -203,11 +206,11 @@ export default function Categories() {
                 <path d="M4 6h16M4 12h16M4 18h7"/>
               </svg>
             </div>
-            <p className={styles.emptyTitle}>No categories yet</p>
-            <p className={styles.emptySub}>Create your first category to organize your tasks</p>
+            <p className={styles.emptyTitle}>{t.categories.emptyTitle}</p>
+            <p className={styles.emptySub}>{t.categories.emptySub}</p>
             <button className={styles.emptyBtn} onClick={() => setModalOpen(true)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Create a category
+              {t.categories.createCategory}
             </button>
           </div>
         ) : (
@@ -224,7 +227,7 @@ export default function Categories() {
                   <div className={styles.catCardInfo}>
                     <span className={styles.catCardName}>{cat.name}</span>
                     <span className={styles.catCardColor}>
-                      {taskCounts[cat.id] || 0} task{(taskCounts[cat.id] || 0) !== 1 ? 's' : ''}
+                      {t.categories.taskCount(taskCounts[cat.id] || 0)}
                     </span>
                   </div>
                 </div>

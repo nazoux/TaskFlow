@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import { useLang } from '../contexts/LangContext';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useLang();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,7 +26,7 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'Login failed');
+        setError(data.message || t.auth.loginFailed);
         return;
       }
 
@@ -32,7 +34,7 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/dashboard');
     } catch {
-      setError('Network error. Please try again.');
+      setError(t.auth.networkError);
     } finally {
       setLoading(false);
     }
@@ -51,18 +53,18 @@ export default function Login() {
           <span className={styles.logoText}>TaskFlow</span>
         </div>
 
-        <h1 className={styles.title}>Login</h1>
+        <h1 className={styles.title}>{t.auth.login}</h1>
 
         {error && <div className={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t.auth.email}</label>
             <div className={styles.inputWrapper}>
               <input
                 id="email"
                 type="email"
-                placeholder="john.doe@example.com"
+                placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -78,12 +80,12 @@ export default function Login() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t.auth.password}</label>
             <div className={styles.inputWrapper}>
               <input
                 id="password"
                 type="password"
-                placeholder="••••••••••••"
+                placeholder={t.auth.passwordPlaceholder}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -96,21 +98,19 @@ export default function Login() {
                 </svg>
               </span>
             </div>
-            <a href="/forgot-password" className={styles.forgot}>Forgot password?</a>
+            <a href="/forgot-password" className={styles.forgot}>{t.auth.forgotPassword}</a>
           </div>
 
           <button type="submit" className={styles.btnPrimary} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? t.auth.loggingIn : t.auth.login}
           </button>
         </form>
 
         <p className={styles.switchText}>
-          Don't have an account? <a href="/register">Sign up</a>
+          <a href="/register">{t.auth.noAccount}</a>
         </p>
 
       </div>
-
-      <p className={styles.pageLabel}><span>Login</span> Page</p>
     </div>
   );
 }

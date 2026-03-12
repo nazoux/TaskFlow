@@ -1,13 +1,32 @@
 import { useState } from 'react';
 import styles from './Auth.module.css';
+import { useLang } from '../contexts/LangContext';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLang();
 
-  function handleSubmit(e) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error();
+      setSubmitted(true);
+    } catch {
+      setError(t.auth.networkError);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -23,22 +42,22 @@ export default function ForgotPassword() {
           <span className={styles.logoText}>TaskFlow</span>
         </div>
 
-        <h1 className={styles.title}>Forgot password</h1>
+        <h1 className={styles.title}>{t.auth.forgotTitle}</h1>
 
         {!submitted ? (
           <>
             <p className={styles.subtitle}>
-              Enter your email and we'll send you a link to reset your password.
+              {t.auth.forgotDesc}
             </p>
 
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t.auth.email}</label>
                 <div className={styles.inputWrapper}>
                   <input
                     id="email"
                     type="email"
-                    placeholder="john.doe@example.com"
+                    placeholder={t.auth.emailPlaceholder}
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -53,8 +72,9 @@ export default function ForgotPassword() {
                 </div>
               </div>
 
-              <button type="submit" className={styles.btnPrimary}>
-                Send reset link
+              {error && <p className={styles.errorMsg}>{error}</p>}
+              <button type="submit" className={styles.btnPrimary} disabled={loading}>
+                {loading ? '...' : t.auth.sendResetLink}
               </button>
             </form>
           </>
@@ -64,17 +84,15 @@ export default function ForgotPassword() {
               <circle cx="12" cy="12" r="10"/>
               <path d="M9 12l2 2 4-4"/>
             </svg>
-            <p>If an account exists for <strong>{email}</strong>, you'll receive a reset link shortly.</p>
+            <p>{t.auth.resetSent(email)}</p>
           </div>
         )}
 
         <p className={styles.switchText}>
-          <a href="/login">← Back to login</a>
+          <a href="/login">← {t.auth.backToLogin}</a>
         </p>
 
       </div>
-
-      <p className={styles.pageLabel}><span>Forgot Password</span> Page</p>
     </div>
   );
 }

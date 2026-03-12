@@ -104,6 +104,32 @@
   display: flex;
 }
 
+/* Eye button inside input */
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a0aec0;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.eyeBtn:hover {
+  color: #4a7cbd;
+}
+
+/* Error message inline */
+.errorMsg {
+  font-size: 13px;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+
 /* Forgot link */
 .forgot {
   display: block;

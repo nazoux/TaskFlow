@@ -5,10 +5,16 @@ import Navbar from '../components/Navbar';
 import TaskModal from '../components/TaskModal';
 import KanbanView from '../components/KanbanView';
 import { useToast, ToastContainer } from '../components/Toast';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { useLang } from '../contexts/LangContext';
+
+function fmtEur(n) {
+  return Number(n || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+const COLORS = ['#4a7cbd', '#22c55e', '#f97316', '#a855f7', '#ef4444', '#06b6d4', '#eab308', '#ec4899'];
 
 const PER_PAGE = 5;
-const STATUS_LABELS = { todo: 'To Do', in_progress: 'In Progress', done: 'Done' };
-const PRIORITY_LABELS = { low: 'Low', medium: 'Medium', high: 'High' };
+const PRIORITY_LABELS_EN = { low: 'Low', medium: 'Medium', high: 'High' };
 const PRIO_ORDER = { high: 0, medium: 1, low: 2 };
 
 function formatDate(d) {
@@ -35,6 +41,9 @@ export default function Dashboard() {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const { toasts, toast, remove: removeToast } = useToast();
+  const { t } = useLang();
+  const STATUS_LABELS = { todo: t.dashboard.todo, in_progress: t.dashboard.inProgress, done: t.dashboard.done };
+  const PRIORITY_LABELS = { low: t.taskModal.low, medium: t.taskModal.medium, high: t.taskModal.high };
 
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -50,12 +59,31 @@ export default function Dashboard() {
   const [editingTask, setEditingTask] = useState(null);
   const [selected, setSelected] = useState(new Set());
   const [expandedDesc, setExpandedDesc] = useState(null);
+  const [financeByCategory, setFinanceByCategory] = useState([]);
+  const [financeSummary, setFinanceSummary] = useState(null);
 
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchTasks();
     fetchCategories();
+    fetchFinance();
   }, []);
+
+  async function fetchFinance() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const h = { Authorization: `Bearer ${token}` };
+    const [catRes, sumRes] = await Promise.all([
+      fetch(`/finance/by-category?year=${year}&month=${month}`, { headers: h }),
+      fetch(`/finance/summary?months=1`, { headers: h }),
+    ]);
+    if (catRes.ok) setFinanceByCategory(await catRes.json());
+    if (sumRes.ok) {
+      const data = await sumRes.json();
+      setFinanceSummary(data[0] || null);
+    }
+  }
 
   async function fetchTasks() {
     setLoading(true);
@@ -82,11 +110,11 @@ export default function Dashboard() {
   async function deleteTask(id) {
     const res = await fetch(`/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     if (res.ok) {
-      toast('Task deleted');
+      toast(t.dashboard.taskDeleted);
       setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
       fetchTasks();
     } else {
-      toast('Failed to delete task', 'error');
+      toast(t.dashboard.failedDeleteTask, 'error');
     }
   }
 
@@ -96,7 +124,7 @@ export default function Dashboard() {
       fetch(`/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
     ));
     setSelected(new Set());
-    toast(`${count} task${count > 1 ? 's' : ''} deleted`);
+    toast(t.dashboard.tasksDeleted(count));
     fetchTasks();
   }
 
@@ -110,8 +138,9 @@ export default function Dashboard() {
     });
     if (res.ok) {
       fetchTasks();
+      fetchFinance();
     } else {
-      toast('Failed to move task', 'error');
+      toast(t.dashboard.failedMoveTask, 'error');
     }
   }
 
@@ -120,7 +149,7 @@ export default function Dashboard() {
 
   function onModalClose(saved) {
     if (saved) {
-      toast(editingTask ? 'Task updated' : 'Task created');
+      toast(editingTask ? t.dashboard.taskUpdated : t.dashboard.taskCreated);
       fetchTasks();
     }
     setModalOpen(false);
@@ -193,14 +222,14 @@ export default function Dashboard() {
 
         <div className={styles.hero}>
           <div className={styles.heroText}>
-            <p className={styles.greeting}>Hello, <strong>{user.username || 'User'}</strong> 👋</p>
-            <h1 className={styles.pageTitle}>Your Tasks</h1>
+            <p className={styles.greeting}>{t.dashboard.greeting} <strong>{user.username || 'User'}</strong> 👋</p>
+            <h1 className={styles.pageTitle}>{t.dashboard.pageTitle}</h1>
             <p className={styles.heroSub}>
               {stats.total === 0
-                ? 'No tasks yet — create your first one to get started!'
+                ? t.dashboard.noTasks
                 : stats.done === stats.total
-                  ? `All ${stats.total} tasks completed — great work! 🎉`
-                  : `You have ${stats.total - stats.done} task${stats.total - stats.done > 1 ? 's' : ''} remaining${stats.inProgress > 0 ? `, ${stats.inProgress} in progress` : ''}.`
+                  ? t.dashboard.allDone(stats.total)
+                  : t.dashboard.remaining(stats.total - stats.done, stats.inProgress)
               }
             </p>
           </div>
@@ -208,7 +237,7 @@ export default function Dashboard() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14M5 12h14"/>
             </svg>
-            New Task
+            {t.dashboard.newTask}
           </button>
         </div>
 
@@ -221,7 +250,7 @@ export default function Dashboard() {
               </svg>
             </div>
             <div className={styles.statBody}>
-              <p className={styles.statLabel}>Total Tasks</p>
+              <p className={styles.statLabel}>{t.dashboard.totalTasks}</p>
               <p className={styles.statValue}>{stats.total}</p>
               <div className={styles.statBar}><div className={styles.statBarFillBlue} style={{ width: '100%' }} /></div>
             </div>
@@ -233,7 +262,7 @@ export default function Dashboard() {
               </svg>
             </div>
             <div className={styles.statBody}>
-              <p className={styles.statLabel}>In Progress</p>
+              <p className={styles.statLabel}>{t.dashboard.inProgress}</p>
               <p className={styles.statValue}>{stats.inProgress}</p>
               <div className={styles.statBar}><div className={styles.statBarFillOrange} style={{ width: stats.total > 0 ? `${(stats.inProgress / stats.total) * 100}%` : '0%' }} /></div>
             </div>
@@ -245,7 +274,7 @@ export default function Dashboard() {
               </svg>
             </div>
             <div className={styles.statBody}>
-              <p className={styles.statLabel}>Done</p>
+              <p className={styles.statLabel}>{t.dashboard.done}</p>
               <p className={styles.statValue}>{stats.done}</p>
               <div className={styles.statBar}><div className={styles.statBarFillGreen} style={{ width: stats.total > 0 ? `${progress}%` : '0%' }} /></div>
             </div>
@@ -255,8 +284,8 @@ export default function Dashboard() {
         {stats.total > 0 && (
           <div className={styles.progressSection}>
             <div className={styles.progressHeader}>
-              <span>Overall progress</span>
-              <span><strong>{progress}%</strong> completed</span>
+              <span>{t.dashboard.overallProgress}</span>
+              <span><strong>{progress}%</strong> {t.dashboard.completed}</span>
             </div>
             <div className={styles.progressBar}>
               <div className={styles.progressFill} style={{ width: `${progress}%` }} />
@@ -275,20 +304,20 @@ export default function Dashboard() {
                   <input
                     className={styles.searchInput}
                     type="text"
-                    placeholder="Search tasks..."
+                    placeholder={t.dashboard.searchPlaceholder}
                     value={search}
                     onChange={e => handleSearch(e.target.value)}
                   />
                   {search && <button className={styles.searchClear} onClick={() => handleSearch('')}>×</button>}
                 </div>
                 <select className={styles.select} value={statusFilter} onChange={e => handleStatusFilter(e.target.value)}>
-                  <option value="all">All statuses</option>
-                  <option value="todo">To Do</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="done">Done</option>
+                  <option value="all">{t.dashboard.allStatuses}</option>
+                  <option value="todo">{t.dashboard.todo}</option>
+                  <option value="in_progress">{t.dashboard.inProgress}</option>
+                  <option value="done">{t.dashboard.done}</option>
                 </select>
                 <select className={styles.select} value={categoryFilter} onChange={e => handleCategoryFilter(e.target.value)}>
-                  <option value="all">All categories</option>
+                  <option value="all">{t.dashboard.allCategories}</option>
                   {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
                 </select>
               </div>
@@ -312,21 +341,21 @@ export default function Dashboard() {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 5v14M5 12h14"/>
                   </svg>
-                  New Task
+                  {t.dashboard.newTask}
                 </button>
               </div>
             </div>
 
             {selected.size > 0 && (
               <div className={styles.bulkBar}>
-                <span>{selected.size} task{selected.size > 1 ? 's' : ''} selected</span>
+                <span>{t.dashboard.selected(selected.size)}</span>
                 <button className={styles.bulkDelete} onClick={deleteBulk}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
                   </svg>
-                  Delete selected
+                  {t.dashboard.deleteSelected}
                 </button>
-                <button className={styles.bulkCancel} onClick={() => setSelected(new Set())}>Cancel</button>
+                <button className={styles.bulkCancel} onClick={() => setSelected(new Set())}>{t.dashboard.cancel}</button>
               </div>
             )}
 
@@ -357,19 +386,19 @@ export default function Dashboard() {
                 </div>
                 {search || statusFilter !== 'all' || categoryFilter !== 'all' ? (
                   <>
-                    <h3>No matching tasks</h3>
-                    <p>Try adjusting your filters or search query.</p>
+                    <h3>{t.dashboard.noMatchingTasks}</h3>
+                    <p>{t.dashboard.adjustFilters}</p>
                     <button className={styles.emptySecondaryBtn} onClick={() => { handleSearch(''); handleStatusFilter('all'); handleCategoryFilter('all'); }}>
-                      Clear filters
+                      {t.dashboard.clearFilters}
                     </button>
                   </>
                 ) : (
                   <>
-                    <h3>You're all clear!</h3>
-                    <p>No tasks yet. Create your first one and start being productive.</p>
+                    <h3>{t.dashboard.allClear}</h3>
+                    <p>{t.dashboard.noTasksYet}</p>
                     <button onClick={openCreate} className={styles.emptyPrimaryBtn}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                      Create first task
+                      {t.dashboard.createFirstTask}
                     </button>
                   </>
                 )}
@@ -383,16 +412,16 @@ export default function Dashboard() {
                         <input type="checkbox" checked={allPageSelected} onChange={toggleSelectAll} />
                       </th>
                       <th className={styles.thSortable} onClick={() => handleSort('title')}>
-                        Title <SortIcon active={sortBy === 'title'} dir={sortDir} />
+                        {t.dashboard.title} <SortIcon active={sortBy === 'title'} dir={sortDir} />
                       </th>
-                      <th>Status</th>
+                      <th>{t.dashboard.status}</th>
                       <th className={styles.thSortable} onClick={() => handleSort('priority')}>
-                        Priority <SortIcon active={sortBy === 'priority'} dir={sortDir} />
+                        {t.dashboard.priority} <SortIcon active={sortBy === 'priority'} dir={sortDir} />
                       </th>
                       <th className={styles.thSortable} onClick={() => handleSort('due_date')}>
-                        Due Date <SortIcon active={sortBy === 'due_date'} dir={sortDir} />
+                        {t.dashboard.dueDate} <SortIcon active={sortBy === 'due_date'} dir={sortDir} />
                       </th>
-                      <th>Actions</th>
+                      <th>{t.dashboard.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -407,7 +436,7 @@ export default function Dashboard() {
                               <div className={styles.titleRow}>
                                 <span className={styles.titleText}>{task.title}</span>
                                 <div className={styles.titleMeta}>
-                                  {overdue && <span className={styles.overdueBadge}>Overdue</span>}
+                                  {overdue && <span className={styles.overdueBadge}>{t.dashboard.overdue}</span>}
                                   {cat && (
                                     <span className={styles.catTag}>
                                       {cat.color && <span className={styles.catDot} style={{ background: cat.color }} />}
@@ -507,28 +536,28 @@ export default function Dashboard() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l3 3"/>
                 </svg>
-                Due this week
+                {t.dashboard.dueThisWeek}
               </h3>
               {(() => {
                 const now = new Date();
                 const week = new Date(now); week.setDate(now.getDate() + 7);
                 const due = tasks
-                  .filter(t => t.status !== 'done' && t.due_date && new Date(t.due_date) >= now && new Date(t.due_date) <= week)
+                  .filter(task => task.status !== 'done' && task.due_date && new Date(task.due_date) >= now && new Date(task.due_date) <= week)
                   .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
                   .slice(0, 5);
                 if (due.length === 0) return (
-                  <p className={styles.sideEmpty}>No tasks due in the next 7 days.</p>
+                  <p className={styles.sideEmpty}>{t.dashboard.noDueSoon}</p>
                 );
-                return due.map(t => {
-                  const overdue = isOverdue(t);
-                  const daysLeft = Math.ceil((new Date(t.due_date) - now) / (1000 * 60 * 60 * 24));
+                return due.map(task => {
+                  const overdue = isOverdue(task);
+                  const daysLeft = Math.ceil((new Date(task.due_date) - now) / (1000 * 60 * 60 * 24));
                   return (
-                    <div key={t.id} className={styles.dueItem} onClick={() => openEdit(t)}>
-                      <div className={`${styles.dueDot} ${t.priority === 'high' ? styles.dueDotRed : t.priority === 'medium' ? styles.dueDotOrange : styles.dueDotBlue}`} />
+                    <div key={task.id} className={styles.dueItem} onClick={() => openEdit(task)}>
+                      <div className={`${styles.dueDot} ${task.priority === 'high' ? styles.dueDotRed : task.priority === 'medium' ? styles.dueDotOrange : styles.dueDotBlue}`} />
                       <div className={styles.dueText}>
-                        <span className={styles.dueTitle}>{t.title}</span>
+                        <span className={styles.dueTitle}>{task.title}</span>
                         <span className={`${styles.dueDate} ${overdue ? styles.dueDateOverdue : ''}`}>
-                          {daysLeft === 0 ? 'Today' : daysLeft === 1 ? 'Tomorrow' : `In ${daysLeft} days`}
+                          {daysLeft === 0 ? t.dashboard.today : daysLeft === 1 ? t.dashboard.tomorrow : t.dashboard.inDays(daysLeft)}
                         </span>
                       </div>
                     </div>
@@ -540,35 +569,58 @@ export default function Dashboard() {
             <div className={styles.sideWidget}>
               <h3 className={styles.sideWidgetTitle}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 6h16M4 12h16M4 18h7"/>
+                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-                Categories
+                {t.dashboard.monthlyExpenses}
               </h3>
-              {categories.length === 0 ? (
-                <p className={styles.sideEmpty}>No categories yet.</p>
-              ) : (
-                <div className={styles.catList}>
-                  {categories.map(c => {
-                    const count = tasks.filter(t => String(t.category_id) === String(c.id)).length;
-                    const done = tasks.filter(t => String(t.category_id) === String(c.id) && t.status === 'done').length;
-                    const pct = count > 0 ? Math.round((done / count) * 100) : 0;
-                    return (
-                      <div key={c.id} className={styles.catItem} onClick={() => handleCategoryFilter(String(c.id))}>
-                        <div className={styles.catItemTop}>
-                          <div className={styles.catItemLeft}>
-                            <span className={styles.catItemDot} style={{ background: c.color || '#94a3b8' }} />
-                            <span className={styles.catItemName}>{c.name}</span>
-                          </div>
-                          <span className={styles.catItemCount}>{count}</span>
+              {financeSummary === null ? (
+                <p className={styles.sideEmpty}>{t.dashboard.noFinancialData}</p>
+              ) : (() => {
+                const budgeted = parseFloat(financeSummary.budgeted || 0);
+                const actual = parseFloat(financeSummary.actual || 0);
+                const progress = budgeted > 0 ? Math.min((actual / budgeted) * 100, 100) : 0;
+                const progressColor = progress >= 100 ? '#ef4444' : progress >= 80 ? '#f97316' : '#22c55e';
+                return (
+                  <div>
+                    <div className={styles.financeAmounts}>
+                      <span className={styles.financeActual} style={{ color: actual > budgeted && budgeted > 0 ? '#ef4444' : '#1a2b4a' }}>{fmtEur(actual)} €</span>
+                      {budgeted > 0 && <span className={styles.financeBudget}>/ {fmtEur(budgeted)} €</span>}
+                    </div>
+                    {budgeted > 0 && (
+                      <>
+                        <div className={styles.financeBar}>
+                          <div className={styles.financeBarFill} style={{ width: `${progress}%`, background: progressColor }} />
                         </div>
-                        <div className={styles.catItemBar}>
-                          <div className={styles.catItemFill} style={{ width: `${pct}%`, background: c.color || '#4a7cbd' }} />
+                        <div className={styles.financeBarLabel}>{t.dashboard.budgetConsumed(Math.round(progress))}</div>
+                      </>
+                    )}
+                    {financeByCategory.length > 0 && (
+                      <div className={styles.financeDonutWrap}>
+                        <ResponsiveContainer width="100%" height={140}>
+                          <PieChart>
+                            <Pie data={financeByCategory} cx="50%" cy="50%" innerRadius={38} outerRadius={58}
+                              dataKey="total" nameKey="categoryName" paddingAngle={3}>
+                              {financeByCategory.map((entry, i) => (
+                                <Cell key={i} fill={entry.categoryColor || COLORS[i % COLORS.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip formatter={(v) => `${fmtEur(v)} €`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className={styles.financeDonutLegend}>
+                          {financeByCategory.slice(0, 4).map((entry, i) => (
+                            <div key={i} className={styles.financeDonutItem}>
+                              <span className={styles.financeDonutDot} style={{ background: entry.categoryColor || COLORS[i % COLORS.length] }} />
+                              <span className={styles.financeDonutName}>{entry.categoryName}</span>
+                              <span className={styles.financeDonutAmt}>{fmtEur(entry.total)} €</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
           </aside>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './TaskModal.module.css';
+import { useLang } from '../contexts/LangContext';
 
 const defaultForm = {
   title: '',
@@ -16,6 +17,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
   const [form, setForm] = useState(defaultForm);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (task) {
@@ -66,13 +68,13 @@ export default function TaskModal({ task, categories, token, onClose }) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'An error occurred');
+        setError(data.message || t.taskModal.errorOccurred);
         return;
       }
 
       onClose(true);
     } catch {
-      setError('Network error. Please try again.');
+      setError(t.taskModal.networkError);
     } finally {
       setLoading(false);
     }
@@ -82,7 +84,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose(false)}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>{isEdit ? 'Edit Task' : 'New Task'}</h2>
+          <h2 className={styles.modalTitle}>{isEdit ? t.taskModal.editTask : t.taskModal.newTask}</h2>
           <button className={styles.closeBtn} onClick={() => onClose(false)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -94,12 +96,12 @@ export default function TaskModal({ task, categories, token, onClose }) {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="title">Title <span className={styles.required}>*</span></label>
+            <label htmlFor="title">{t.taskModal.title} <span className={styles.required}>*</span></label>
             <input
               id="title"
               name="title"
               type="text"
-              placeholder="Task title"
+              placeholder={t.taskModal.titlePlaceholder}
               value={form.title}
               onChange={handleChange}
               required
@@ -107,11 +109,11 @@ export default function TaskModal({ task, categories, token, onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="description">Description</label>
+            <label htmlFor="description">{t.taskModal.description}</label>
             <textarea
               id="description"
               name="description"
-              placeholder="Optional description..."
+              placeholder={t.taskModal.descriptionPlaceholder}
               rows={3}
               value={form.description}
               onChange={handleChange}
@@ -120,28 +122,28 @@ export default function TaskModal({ task, categories, token, onClose }) {
 
           <div className={styles.row}>
             <div className={styles.field}>
-              <label htmlFor="status">Status <span className={styles.required}>*</span></label>
+              <label htmlFor="status">{t.taskModal.status} <span className={styles.required}>*</span></label>
               <select id="status" name="status" value={form.status} onChange={handleChange} required>
-                <option value="todo">To Do</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
+                <option value="todo">{t.taskModal.todo}</option>
+                <option value="in_progress">{t.taskModal.inProgress}</option>
+                <option value="done">{t.taskModal.done}</option>
               </select>
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="priority">Priority</label>
+              <label htmlFor="priority">{t.taskModal.priority}</label>
               <select id="priority" name="priority" value={form.priority} onChange={handleChange}>
-                <option value="">None</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="">{t.taskModal.none}</option>
+                <option value="low">{t.taskModal.low}</option>
+                <option value="medium">{t.taskModal.medium}</option>
+                <option value="high">{t.taskModal.high}</option>
               </select>
             </div>
           </div>
 
           <div className={styles.row}>
             <div className={styles.field}>
-              <label htmlFor="due_date">Due Date</label>
+              <label htmlFor="due_date">{t.taskModal.dueDate}</label>
               <input
                 id="due_date"
                 name="due_date"
@@ -152,9 +154,9 @@ export default function TaskModal({ task, categories, token, onClose }) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="category_id">Category</label>
+              <label htmlFor="category_id">{t.taskModal.category}</label>
               <select id="category_id" name="category_id" value={form.category_id} onChange={handleChange}>
-                <option value="">None</option>
+                <option value="">{t.taskModal.none}</option>
                 {categories.map(c => (
                   <option key={c.id} value={String(c.id)}>{c.name}</option>
                 ))}
@@ -163,14 +165,14 @@ export default function TaskModal({ task, categories, token, onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="budget">Budget alloué (€)</label>
+            <label htmlFor="budget">{t.taskModal.budget}</label>
             <input
               id="budget"
               name="budget"
               type="number"
               min="0"
               step="0.01"
-              placeholder="ex: 150.00"
+              placeholder={t.taskModal.budgetPlaceholder}
               value={form.budget}
               onChange={handleChange}
             />
@@ -178,10 +180,10 @@ export default function TaskModal({ task, categories, token, onClose }) {
 
           <div className={styles.modalFooter}>
             <button type="button" className={styles.cancelBtn} onClick={() => onClose(false)}>
-              Cancel
+              {t.taskModal.cancel}
             </button>
             <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Saving...' : isEdit ? 'Save changes' : 'Create task'}
+              {loading ? t.taskModal.saving : isEdit ? t.taskModal.saveChanges : t.taskModal.createTask}
             </button>
           </div>
         </form>

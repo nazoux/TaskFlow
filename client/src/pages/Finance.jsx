@@ -6,11 +6,7 @@ import {
   PieChart, Pie, Cell,
   AreaChart, Area, CartesianGrid
 } from 'recharts';
-
-const MONTH_NAMES = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-
-const SHORT_MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+import { useLang } from '../contexts/LangContext';
 
 function fmt(n) {
   return Number(n || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -19,6 +15,8 @@ function fmt(n) {
 export default function Finance() {
   const token = localStorage.getItem('token');
   const now = new Date();
+  const { t } = useLang();
+  const MONTH_NAMES = t.months.full;
 
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -96,7 +94,7 @@ export default function Finance() {
         body: JSON.stringify({ year: selectedYear, month: selectedMonth, amount: parseFloat(budgetForm.amount), label: budgetForm.label || 'Salaire' }),
       });
       const data = await res.json();
-      if (!res.ok) { setFormError(data.message || 'Erreur'); return; }
+      if (!res.ok) { setFormError(data.message || 'Error'); return; }
       setShowBudgetModal(false);
       setBudgetForm({ amount: '', label: '' });
       fetchAll();
@@ -122,7 +120,7 @@ export default function Finance() {
         body,
       });
       const data = await res.json();
-      if (!res.ok) { setFormError(data.message || 'Erreur'); return; }
+      if (!res.ok) { setFormError(data.message || 'Error'); return; }
       setShowExpenseModal(false);
       setEditingExpense(null);
       setExpenseForm({ label: '', amount: '', expense_date: '', category_id: '' });
@@ -145,7 +143,7 @@ export default function Finance() {
   }
 
   async function deleteExpense(id) {
-    if (!confirm('Supprimer cette dépense ?')) return;
+    if (!confirm(t.finance.deleteConfirm)) return;
     await fetch(`/finance/expenses/${id}`, { method: 'DELETE', headers });
     fetchAll();
   }
@@ -174,7 +172,7 @@ export default function Finance() {
                 </svg>
               </button>
             </div>
-            <div className={styles.heroLabel}>Budget mensuel</div>
+            <div className={styles.heroLabel}>{t.finance.monthlyBudget}</div>
             <div className={styles.heroAmount}>{fmt(budgeted)} €</div>
             <div className={styles.heroProgressWrap}>
               <div className={styles.heroProgress}>
@@ -183,26 +181,26 @@ export default function Finance() {
                   style={{ width: `${progress}%`, background: progress >= 100 ? '#ef4444' : progress >= 80 ? '#f97316' : '#22c55e' }}
                 />
               </div>
-              <span className={styles.heroProgressLabel}>{fmt(actual)} € dépensés</span>
+              <span className={styles.heroProgressLabel}>{t.finance.spent(fmt(actual))}</span>
             </div>
             {progress >= 80 && (
               <div className={styles.heroAlert}>
-                {progress >= 100 ? '⚠ Budget dépassé !' : '⚠ Attention : 80% du budget atteint'}
+                {progress >= 100 ? t.finance.budgetExceeded : t.finance.budget80}
               </div>
             )}
           </div>
 
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
-              <span className={styles.heroStatLabel}>Dépensé</span>
+              <span className={styles.heroStatLabel}>{t.finance.spentLabel}</span>
               <span className={styles.heroStatValue} style={{ color: actual > budgeted ? '#ef4444' : '#22c55e' }}>{fmt(actual)} €</span>
             </div>
             <div className={styles.heroStat}>
-              <span className={styles.heroStatLabel}>Restant</span>
+              <span className={styles.heroStatLabel}>{t.finance.remaining}</span>
               <span className={styles.heroStatValue} style={{ color: remaining < 0 ? '#ef4444' : '#fff' }}>{fmt(remaining)} €</span>
             </div>
             <div className={styles.heroStat}>
-              <span className={styles.heroStatLabel}>Prévisionnel</span>
+              <span className={styles.heroStatLabel}>{t.finance.forecast}</span>
               <span className={styles.heroStatValue}>{fmt(forecast)} €</span>
             </div>
           </div>
@@ -212,13 +210,13 @@ export default function Finance() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Définir salaire
+              {t.finance.setSalary}
             </button>
             <button className={styles.heroBtnSecondary} onClick={() => { setExpenseForm({ label: '', amount: '', expense_date: new Date().toISOString().slice(0, 10), category_id: '' }); setFormError(''); setShowExpenseModal(true); }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Ajouter dépense
+              {t.finance.addExpense}
             </button>
           </div>
         </div>
@@ -229,7 +227,7 @@ export default function Finance() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7cbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
               </svg>
-              <h3 className={styles.cardTitle}>Prévisionnel vs Réel — 6 derniers mois</h3>
+              <h3 className={styles.cardTitle}>{t.finance.chartTitle}</h3>
             </div>
             {loading ? <div className={styles.chartSkeleton} /> : (
               <ResponsiveContainer width="100%" height={220}>
@@ -238,9 +236,9 @@ export default function Finance() {
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip formatter={(v) => `${fmt(v)} €`} />
                   <Legend />
-                  <Bar dataKey="budgeted" name="Budget" fill="#4a7cbd" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="actual" name="Dépensé" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="forecast" name="Prévisionnel" fill="#f97316" radius={[4, 4, 0, 0]} opacity={0.7} />
+                  <Bar dataKey="budgeted" name={t.finance.budgetBar} fill="#4a7cbd" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="actual" name={t.finance.spentBar} fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="forecast" name={t.finance.forecastBar} fill="#f97316" radius={[4, 4, 0, 0]} opacity={0.7} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -251,10 +249,10 @@ export default function Finance() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7cbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
               </svg>
-              <h3 className={styles.cardTitle}>Répartition par catégorie</h3>
+              <h3 className={styles.cardTitle}>{t.finance.categoryBreakdown}</h3>
             </div>
             {loading ? <div className={styles.chartSkeleton} /> : byCategory.length === 0 ? (
-              <div className={styles.chartEmpty}>Aucune dépense ce mois-ci</div>
+              <div className={styles.chartEmpty}>{t.finance.noExpensesMonth}</div>
             ) : (
               <div className={styles.donutWrap}>
                 <ResponsiveContainer width={220} height={200}>
@@ -287,7 +285,7 @@ export default function Finance() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7cbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
-            <h3 className={styles.cardTitle}>Historique annuel {selectedYear}</h3>
+            <h3 className={styles.cardTitle}>{t.finance.annualHistory(selectedYear)}</h3>
           </div>
           {loading ? <div className={styles.chartSkeleton} /> : (
             <ResponsiveContainer width="100%" height={220}>
@@ -307,8 +305,8 @@ export default function Finance() {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(v) => `${fmt(v)} €`} />
                 <Legend />
-                <Area type="monotone" dataKey="budgeted" name="Budget" stroke="#4a7cbd" fill="url(#budgetGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="actual" name="Dépensé" stroke="#22c55e" fill="url(#actualGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="budgeted" name={t.finance.budgetBar} stroke="#4a7cbd" fill="url(#budgetGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="actual" name={t.finance.spentBar} stroke="#22c55e" fill="url(#actualGrad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -319,22 +317,22 @@ export default function Finance() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7cbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
             </svg>
-            <h3 className={styles.cardTitle}>Dépenses — {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</h3>
+            <h3 className={styles.cardTitle}>{t.finance.expensesTitle(MONTH_NAMES[selectedMonth - 1], selectedYear)}</h3>
           </div>
           {loading ? (
             <div className={styles.skeletonWrap}>
               {[1,2,3].map(i => <div key={i} className={styles.skeletonRow}><div className={styles.skeletonCell} style={{ width: '40%' }}/><div className={styles.skeletonCell} style={{ width: '20%' }}/><div className={styles.skeletonCell} style={{ width: '20%' }}/></div>)}
             </div>
           ) : expenses.length === 0 ? (
-            <div className={styles.emptyExpenses}>Aucune dépense ce mois-ci</div>
+            <div className={styles.emptyExpenses}>{t.finance.noExpensesMonth}</div>
           ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Libellé</th>
-                  <th>Catégorie</th>
-                  <th>Date</th>
-                  <th>Montant</th>
+                  <th>{t.finance.labelCol}</th>
+                  <th>{t.finance.categoryCol}</th>
+                  <th>{t.finance.dateCol}</th>
+                  <th>{t.finance.amountCol}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -342,7 +340,7 @@ export default function Finance() {
                 {expenses.map(exp => (
                   <tr key={exp.id} className={styles.tableRow}>
                     <td className={styles.expLabel}>
-                      {exp.task_id && <span className={styles.taskBadge}>Tâche</span>}
+                      {exp.task_id && <span className={styles.taskBadge}>{t.finance.taskBadge}</span>}
                       {exp.label}
                     </td>
                     <td>
@@ -383,7 +381,7 @@ export default function Finance() {
         <div className={styles.overlay} onClick={e => e.target === e.currentTarget && setShowBudgetModal(false)}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2>Salaire — {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</h2>
+              <h2>{t.finance.salaryModalTitle(MONTH_NAMES[selectedMonth - 1], selectedYear)}</h2>
               <button className={styles.closeBtn} onClick={() => setShowBudgetModal(false)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18M6 6l12 12"/>
@@ -393,18 +391,18 @@ export default function Finance() {
             {formError && <div className={styles.modalError}>{formError}</div>}
             <form onSubmit={saveBudget} className={styles.modalForm}>
               <div className={styles.modalField}>
-                <label>Libellé</label>
-                <input type="text" placeholder="ex: Salaire, Freelance..."
+                <label>{t.finance.labelField}</label>
+                <input type="text" placeholder={t.finance.salaryLabelPlaceholder}
                   value={budgetForm.label} onChange={e => setBudgetForm(f => ({ ...f, label: e.target.value }))} />
               </div>
               <div className={styles.modalField}>
-                <label>Montant (€)</label>
-                <input type="number" min="0" step="0.01" placeholder="ex: 2500.00"
+                <label>{t.finance.amountField}</label>
+                <input type="number" min="0" step="0.01" placeholder={t.finance.salaryAmountPlaceholder}
                   value={budgetForm.amount} onChange={e => setBudgetForm(f => ({ ...f, amount: e.target.value }))} required />
               </div>
               <div className={styles.modalFooter}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowBudgetModal(false)}>Annuler</button>
-                <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
+                <button type="button" className={styles.cancelBtn} onClick={() => setShowBudgetModal(false)}>{t.finance.cancel}</button>
+                <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? t.finance.saving : t.finance.save}</button>
               </div>
             </form>
           </div>
@@ -415,7 +413,7 @@ export default function Finance() {
         <div className={styles.overlay} onClick={e => { if (e.target === e.currentTarget) { setShowExpenseModal(false); setEditingExpense(null); } }}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2>{editingExpense ? 'Modifier la dépense' : 'Nouvelle dépense'}</h2>
+              <h2>{editingExpense ? t.finance.editExpense : t.finance.newExpense}</h2>
               <button className={styles.closeBtn} onClick={() => { setShowExpenseModal(false); setEditingExpense(null); }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18M6 6l12 12"/>
@@ -425,32 +423,32 @@ export default function Finance() {
             {formError && <div className={styles.modalError}>{formError}</div>}
             <form onSubmit={saveExpense} className={styles.modalForm}>
               <div className={styles.modalField}>
-                <label>Libellé <span className={styles.required}>*</span></label>
-                <input type="text" placeholder="ex: Abonnement Netflix"
+                <label>{t.finance.labelField} <span className={styles.required}>*</span></label>
+                <input type="text" placeholder={t.finance.labelPlaceholder}
                   value={expenseForm.label} onChange={e => setExpenseForm(f => ({ ...f, label: e.target.value }))} required />
               </div>
               <div className={styles.modalRow}>
                 <div className={styles.modalField}>
-                  <label>Montant (€) <span className={styles.required}>*</span></label>
-                  <input type="number" min="0" step="0.01" placeholder="0.00"
+                  <label>{t.finance.amountField} <span className={styles.required}>*</span></label>
+                  <input type="number" min="0" step="0.01" placeholder={t.finance.amountPlaceholder}
                     value={expenseForm.amount} onChange={e => setExpenseForm(f => ({ ...f, amount: e.target.value }))} required />
                 </div>
                 <div className={styles.modalField}>
-                  <label>Date <span className={styles.required}>*</span></label>
+                  <label>{t.finance.dateField} <span className={styles.required}>*</span></label>
                   <input type="date"
                     value={expenseForm.expense_date} onChange={e => setExpenseForm(f => ({ ...f, expense_date: e.target.value }))} required />
                 </div>
               </div>
               <div className={styles.modalField}>
-                <label>Catégorie</label>
+                <label>{t.finance.categoryField}</label>
                 <select value={expenseForm.category_id} onChange={e => setExpenseForm(f => ({ ...f, category_id: e.target.value }))}>
-                  <option value="">Aucune</option>
+                  <option value="">{t.finance.noneOption}</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div className={styles.modalFooter}>
-                <button type="button" className={styles.cancelBtn} onClick={() => { setShowExpenseModal(false); setEditingExpense(null); }}>Annuler</button>
-                <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? 'Enregistrement...' : editingExpense ? 'Modifier' : 'Ajouter'}</button>
+                <button type="button" className={styles.cancelBtn} onClick={() => { setShowExpenseModal(false); setEditingExpense(null); }}>{t.finance.cancel}</button>
+                <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? t.finance.saving : editingExpense ? t.finance.edit : t.finance.add}</button>
               </div>
             </form>
           </div>

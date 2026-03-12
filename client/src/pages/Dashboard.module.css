@@ -309,6 +309,71 @@
   padding: 10px 0;
 }
 
+.financeAmounts {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.financeActual {
+  font-size: 20px;
+  font-weight: 700;
+}
+.financeBudget {
+  font-size: 13px;
+  color: #94a3b8;
+}
+.financeBar {
+  height: 6px;
+  background: #e8edf5;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.financeBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.financeBarLabel {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+.financeDonutWrap {
+  margin-top: 4px;
+}
+.financeDonutLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+.financeDonutItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.financeDonutDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.financeDonutName {
+  flex: 1;
+  color: #1a2b4a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.financeDonutAmt {
+  font-weight: 600;
+  color: #4a5568;
+  white-space: nowrap;
+}
+
 .dueItem {
   display: flex;
   align-items: center;

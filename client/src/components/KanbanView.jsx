@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLang } from '../contexts/LangContext';
 import {
   DndContext,
   DragOverlay,
@@ -10,10 +11,10 @@ import {
 import { useDroppable, useDraggable } from '@dnd-kit/core';
 import styles from './KanbanView.module.css';
 
-const COLUMNS = [
-  { key: 'todo',        label: 'To Do',      accent: '#3b82f6' },
-  { key: 'in_progress', label: 'In Progress', accent: '#f97316' },
-  { key: 'done',        label: 'Done',        accent: '#22c55e' },
+const COLUMN_KEYS = [
+  { key: 'todo',        tKey: 'todo',       accent: '#3b82f6' },
+  { key: 'in_progress', tKey: 'inProgress', accent: '#f97316' },
+  { key: 'done',        tKey: 'done',       accent: '#22c55e' },
 ];
 
 const PRIORITY_COLORS = {
@@ -122,7 +123,7 @@ function DraggableCard({ task, catMap, onEdit, onDelete, activeId }) {
 }
 
 /* ─── Droppable column ───────────────────────────────────────────────────── */
-function KanbanColumn({ col, tasks, catMap, onEdit, onDelete, activeId }) {
+function KanbanColumn({ col, tasks, catMap, onEdit, onDelete, activeId, dropHereLabel }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
 
   return (
@@ -137,7 +138,7 @@ function KanbanColumn({ col, tasks, catMap, onEdit, onDelete, activeId }) {
       >
         {tasks.length === 0 ? (
           <div className={`${styles.emptyCol} ${isOver ? styles.emptyColOver : ''}`}>
-            Drop here
+            {dropHereLabel}
           </div>
         ) : (
           tasks.map(task => (
@@ -159,6 +160,8 @@ function KanbanColumn({ col, tasks, catMap, onEdit, onDelete, activeId }) {
 /* ─── Main KanbanView ────────────────────────────────────────────────────── */
 export default function KanbanView({ tasks, catMap, onEdit, onDelete, onStatusChange }) {
   const [activeTask, setActiveTask] = useState(null);
+  const { t } = useLang();
+  const COLUMNS = COLUMN_KEYS.map(c => ({ ...c, label: t.kanban[c.tKey] }));
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -193,11 +196,12 @@ export default function KanbanView({ tasks, catMap, onEdit, onDelete, onStatusCh
           <KanbanColumn
             key={col.key}
             col={col}
-            tasks={tasks.filter(t => t.status === col.key)}
+            tasks={tasks.filter(task => task.status === col.key)}
             catMap={catMap}
             onEdit={onEdit}
             onDelete={onDelete}
             activeId={activeTask?.id}
+            dropHereLabel={t.kanban.dropHere}
           />
         ))}
       </div>
