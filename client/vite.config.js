@@ -6,9 +6,24 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': 'http://localhost:3000',
-      '/tasks': 'http://localhost:3000',
-      '/categories': 'http://localhost:3000',
-      '/finance': 'http://localhost:3000',
+      '/tasks': {
+        target: 'http://localhost:3000',
+        bypass(req) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) return req.url;
+        }
+      },
+      '/categories': {
+        target: 'http://localhost:3000',
+        bypass(req) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) return req.url;
+        }
+      },
+      '/finance': {
+        target: 'http://localhost:3000',
+        bypass(req) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) return req.url;
+        }
+      },
     }
   }
 })

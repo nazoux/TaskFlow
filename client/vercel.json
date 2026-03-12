@@ -1,20 +1,32 @@
 {
   "rewrites": [
     {
-      "source": "/auth/:path*",
-      "destination": "https://taskflow-production-47d4.up.railway.app/auth/:path*"
+      "source": "/auth/:path+",
+      "destination": "https://taskflow-production-47d4.up.railway.app/auth/:path+"
     },
     {
-      "source": "/tasks/:path*",
-      "destination": "https://taskflow-production-47d4.up.railway.app/tasks/:path*"
+      "source": "/tasks/:path+",
+      "destination": "https://taskflow-production-47d4.up.railway.app/tasks/:path+"
     },
     {
-      "source": "/categories/:path*",
-      "destination": "https://taskflow-production-47d4.up.railway.app/categories/:path*"
+      "source": "/tasks",
+      "destination": "https://taskflow-production-47d4.up.railway.app/tasks"
     },
     {
-      "source": "/finance/:path*",
-      "destination": "https://taskflow-production-47d4.up.railway.app/finance/:path*"
+      "source": "/categories/:path+",
+      "destination": "https://taskflow-production-47d4.up.railway.app/categories/:path+"
+    },
+    {
+      "source": "/categories",
+      "destination": "https://taskflow-production-47d4.up.railway.app/categories"
+    },
+    {
+      "source": "/finance/:path+",
+      "destination": "https://taskflow-production-47d4.up.railway.app/finance/:path+"
+    },
+    {
+      "source": "/finance",
+      "destination": "https://taskflow-production-47d4.up.railway.app/finance"
     },
     {
       "source": "/(.*)",
