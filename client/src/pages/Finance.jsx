@@ -345,11 +345,11 @@ export default function Finance() {
               <tbody>
                 {expenses.map(exp => (
                   <tr key={exp.id} className={styles.tableRow}>
-                    <td className={styles.expLabel}>
+                    <td className={styles.expLabel} data-label={t.finance.labelCol}>
                       {exp.task_id && <span className={styles.taskBadge}>{t.finance.taskBadge}</span>}
                       {exp.label}
                     </td>
-                    <td>
+                    <td data-label={t.finance.categoryCol}>
                       {exp.Category ? (
                         <span className={styles.catTag}>
                           <span className={styles.catDot} style={{ background: exp.Category.color }} />
@@ -357,9 +357,9 @@ export default function Finance() {
                         </span>
                       ) : <span className={styles.nocat}>—</span>}
                     </td>
-                    <td className={styles.dateCell}>{exp.expense_date}</td>
-                    <td className={styles.amountCell}>{fmt(exp.amount)} €</td>
-                    <td className={styles.actionCell}>
+                    <td className={styles.dateCell} data-label={t.finance.dateCol}>{exp.expense_date}</td>
+                    <td className={styles.amountCell} data-label={t.finance.amountCol}>{fmt(exp.amount)} €</td>
+                    <td className={styles.actionCell} data-label=" ">
                       {!exp.task_id && (
                         <>
                           <button className={styles.editBtn} onClick={() => openEditExpense(exp)}>

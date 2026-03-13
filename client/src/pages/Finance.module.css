@@ -617,4 +617,32 @@
   .grid2 { grid-template-columns: 1fr; }
   .donutWrap { flex-direction: column; }
   .modalRow { grid-template-columns: 1fr; }
+
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .tableRow {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: #fff;
+  }
+  .tableRow td {
+    border: none;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tableRow td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 70px;
+    flex-shrink: 0;
+  }
+  .actionCell { justify-content: flex-start; }
 }
