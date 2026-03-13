@@ -10,7 +10,10 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000"
+        url: process.env.NODE_ENV === "production"
+          ? process.env.BACKEND_URL || "https://ton-api.railway.app"
+          : "http://localhost:3000",
+        description: process.env.NODE_ENV === "production" ? "Production" : "Local"
       }
     ],
     components: {
