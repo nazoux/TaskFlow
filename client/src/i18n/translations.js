@@ -105,6 +105,10 @@ export const translations = {
       delete: 'Delete',
       salaryLabelPlaceholder: 'e.g. Salary, Freelance...',
       salaryAmountPlaceholder: 'e.g. 2500.00',
+      totalAvailable: 'Available',
+      recurringExpense: 'Recurring expense',
+      recurringBadge: 'Monthly',
+      balanceBar: 'Available total',
     },
 
     // Categories
@@ -364,6 +368,10 @@ export const translations = {
       delete: 'Supprimer',
       salaryLabelPlaceholder: 'ex: Salaire, Freelance...',
       salaryAmountPlaceholder: 'ex: 2500.00',
+      totalAvailable: 'Argent disponible',
+      recurringExpense: 'Dépense récurrente',
+      recurringBadge: 'Mensuel',
+      balanceBar: 'Argent disponible',
     },
 
     // Categories

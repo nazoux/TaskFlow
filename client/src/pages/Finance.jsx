@@ -35,7 +35,7 @@ export default function Finance() {
   const [defaultCategoryId, setDefaultCategoryId] = useState('');
 
   const [budgetForm, setBudgetForm] = useState({ amount: '', label: '' });
-  const [expenseForm, setExpenseForm] = useState({ label: '', amount: '', expense_date: '', category_id: '' });
+  const [expenseForm, setExpenseForm] = useState({ label: '', amount: '', expense_date: '', category_id: '', is_recurring: false });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -46,7 +46,7 @@ export default function Finance() {
     setLoading(true);
     try {
       const [sumRes, catRes, histRes, expRes, catsRes] = await Promise.all([
-        fetch(`/api/finance/summary?months=6`, { headers }),
+        fetch(`/api/finance/summary?months=6&year=${selectedYear}&month=${selectedMonth}`, { headers }),
         fetch(`/api/finance/by-category?year=${selectedYear}&month=${selectedMonth}`, { headers }),
         fetch(`/api/finance/history?year=${selectedYear}`, { headers }),
         fetch(`/api/finance/expenses?year=${selectedYear}&month=${selectedMonth}`, { headers }),
@@ -78,6 +78,7 @@ export default function Finance() {
   const actual = currentSummary ? parseFloat(currentSummary.actual) : 0;
   const forecast = currentSummary ? parseFloat(currentSummary.forecast) : 0;
   const remaining = budgeted - actual;
+  const totalAvailable = summary.reduce((acc, s) => acc + parseFloat(s.budgeted || 0) - parseFloat(s.actual || 0), 0);
   const progress = budgeted > 0 ? Math.min((actual / budgeted) * 100, 100) : 0;
 
   function prevMonth() {
@@ -119,6 +120,7 @@ export default function Finance() {
         amount: parseFloat(expenseForm.amount),
         expense_date: expenseForm.expense_date,
         category_id: expenseForm.category_id ? Number(expenseForm.category_id) : null,
+        is_recurring: expenseForm.is_recurring,
       });
       const res = await fetch(editingExpense ? `/api/finance/expenses/${editingExpense.id}` : '/api/finance/expenses', {
         method: editingExpense ? 'PUT' : 'POST',
@@ -129,7 +131,7 @@ export default function Finance() {
       if (!res.ok) { setFormError(data.message || 'Error'); return; }
       setShowExpenseModal(false);
       setEditingExpense(null);
-      setExpenseForm({ label: '', amount: '', expense_date: '', category_id: '' });
+      setExpenseForm({ label: '', amount: '', expense_date: '', category_id: '', is_recurring: false });
       fetchAll();
     } finally {
       setSaving(false);
@@ -143,13 +145,14 @@ export default function Finance() {
       amount: String(exp.amount),
       expense_date: exp.expense_date,
       category_id: exp.category_id ? String(exp.category_id) : '',
+      is_recurring: exp.is_recurring || false,
     });
     setFormError('');
     setShowExpenseModal(true);
   }
 
   async function deleteExpense(id) {
-    await fetch(`/api/finance/expenses/${id}`, { method: 'DELETE', headers });
+    await fetch(`/api/finance/expenses/${id}?year=${selectedYear}&month=${selectedMonth}`, { method: 'DELETE', headers });
     setConfirmDeleteId(null);
     fetchAll();
   }
@@ -208,6 +211,10 @@ export default function Finance() {
             <div className={styles.heroStat}>
               <span className={styles.heroStatLabel}>{t.finance.forecast}</span>
               <span className={styles.heroStatValue}>{fmt(forecast)} €</span>
+            </div>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatLabel}>{t.finance.totalAvailable}</span>
+              <span className={styles.heroStatValue} style={{ color: totalAvailable < 0 ? '#ef4444' : '#a855f7' }}>{fmt(totalAvailable)} €</span>
             </div>
           </div>
 
@@ -293,9 +300,15 @@ export default function Finance() {
             </svg>
             <h3 className={styles.cardTitle}>{t.finance.annualHistory(selectedYear)}</h3>
           </div>
-          {loading ? <div className={styles.chartSkeleton} /> : (
+          {loading ? <div className={styles.chartSkeleton} /> : (() => {
+            let cumulative = 0;
+            const historyWithTotal = history.map(h => {
+              cumulative += h.budgeted - h.actual;
+              return { ...h, totalAvailable: parseFloat(cumulative.toFixed(2)) };
+            });
+            return (
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={history} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <AreaChart data={historyWithTotal} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="budgetGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#4a7cbd" stopOpacity={0.3} />
@@ -305,6 +318,10 @@ export default function Finance() {
                     <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                   </linearGradient>
+                  <linearGradient id="balanceGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f4fa" />
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
@@ -313,9 +330,11 @@ export default function Finance() {
                 <Legend />
                 <Area type="monotone" dataKey="budgeted" name={t.finance.budgetBar} stroke="#4a7cbd" fill="url(#budgetGrad)" strokeWidth={2} />
                 <Area type="monotone" dataKey="actual" name={t.finance.spentBar} stroke="#22c55e" fill="url(#actualGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="totalAvailable" name={t.finance.balanceBar} stroke="#a855f7" fill="url(#balanceGrad)" strokeWidth={2} strokeDasharray="5 3" />
               </AreaChart>
             </ResponsiveContainer>
-          )}
+            );
+          })()}
         </div>
 
         <div className={styles.card}>
@@ -347,6 +366,7 @@ export default function Finance() {
                   <tr key={exp.id} className={styles.tableRow}>
                     <td className={styles.expLabel} data-label={t.finance.labelCol}>
                       {exp.task_id && <span className={styles.taskBadge}>{t.finance.taskBadge}</span>}
+                      {exp.is_recurring && <span className={styles.recurringBadge}>{t.finance.recurringBadge}</span>}
                       {exp.label}
                     </td>
                     <td data-label={t.finance.categoryCol}>
@@ -452,6 +472,14 @@ export default function Finance() {
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name === 'Misc' ? t.finance.misc : c.name}</option>)}
                 </select>
               </div>
+              <label className={styles.recurringToggle}>
+                <input
+                  type="checkbox"
+                  checked={expenseForm.is_recurring}
+                  onChange={e => setExpenseForm(f => ({ ...f, is_recurring: e.target.checked }))}
+                />
+                <span className={styles.recurringToggleLabel}>{t.finance.recurringExpense}</span>
+              </label>
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={() => { setShowExpenseModal(false); setEditingExpense(null); }}>{t.finance.cancel}</button>
                 <button type="submit" className={styles.submitBtn} disabled={saving}>{saving ? t.finance.saving : editingExpense ? t.finance.edit : t.finance.add}</button>

@@ -44,6 +44,27 @@ const Expense = sequelize.define("Expense", {
     allowNull: false,
     defaultValue: 'expense'
   },
+  is_recurring: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  recurring_start_year: {
+    type: DataTypes.SMALLINT,
+    allowNull: true
+  },
+  recurring_start_month: {
+    type: DataTypes.TINYINT,
+    allowNull: true
+  },
+  recurring_end_year: {
+    type: DataTypes.SMALLINT,
+    allowNull: true
+  },
+  recurring_end_month: {
+    type: DataTypes.TINYINT,
+    allowNull: true
+  },
   created_at: {
     type: DataTypes.DATE,
     allowNull: false

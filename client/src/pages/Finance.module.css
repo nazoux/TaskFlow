@@ -343,6 +343,38 @@
   white-space: nowrap;
 }
 
+.recurringBadge {
+  font-size: 10px;
+  font-weight: 600;
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 2px 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.recurringToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.recurringToggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4a7cbd;
+  cursor: pointer;
+}
+
+.recurringToggleLabel {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+  user-select: none;
+}
+
 .catTag {
   display: inline-flex;
   align-items: center;
