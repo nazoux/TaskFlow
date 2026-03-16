@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useLang } from '../contexts/LangContext';
+import { useOverdueTasks } from '../hooks/useOverdueTasks';
 
 const Logo = ({ size = 32 }) => (
   <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,7 +16,18 @@ export default function Navbar({ active }) {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const bellRef = useRef(null);
   const { t } = useLang();
+  const overdue = useOverdueTasks();
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (bellRef.current && !bellRef.current.contains(e.target)) setBellOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   function logout() {
     localStorage.removeItem('token');
@@ -65,6 +77,34 @@ export default function Navbar({ active }) {
           }
           <span>{user.username || 'User'}</span>
         </Link>
+        <div className={styles.bellWrap} ref={bellRef}>
+          <button className={styles.bellBtn} onClick={() => setBellOpen(o => !o)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            {overdue.length > 0 && <span className={styles.bellBadge}>{overdue.length > 9 ? '9+' : overdue.length}</span>}
+          </button>
+          {bellOpen && (
+            <div className={styles.bellDropdown}>
+              <div className={styles.bellDropdownTitle}>{t.nav.overdueTitle}</div>
+              {overdue.length === 0 ? (
+                <div className={styles.bellEmpty}>{t.nav.noOverdue}</div>
+              ) : (
+                <ul className={styles.bellList}>
+                  {overdue.map(task => (
+                    <li key={task.id} className={styles.bellItem}>
+                      <span className={styles.bellItemDot} />
+                      <div>
+                        <div className={styles.bellItemTitle}>{task.title}</div>
+                        <div className={styles.bellItemDate}>{new Date(task.due_date).toLocaleDateString('fr-FR')}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
         <button onClick={logout} className={styles.logoutBtn}>{t.nav.logout}</button>
 
         <button className={styles.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">

@@ -7,6 +7,8 @@ export const translations = {
       finance: 'Finance',
       profile: 'Profile',
       logout: 'Logout',
+      overdueTitle: 'Overdue tasks',
+      noOverdue: 'No overdue tasks',
     },
 
     // Dashboard
@@ -271,6 +273,8 @@ export const translations = {
       finance: 'Finance',
       profile: 'Profil',
       logout: 'Déconnexion',
+      overdueTitle: 'Tâches en retard',
+      noOverdue: 'Aucune tâche en retard',
     },
 
     // Dashboard
