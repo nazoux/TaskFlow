@@ -79,6 +79,12 @@ export default function Finance() {
   const forecast = currentSummary ? parseFloat(currentSummary.forecast) : 0;
   const remaining = budgeted - actual;
   const totalAvailable = summary.reduce((acc, s) => acc + parseFloat(s.budgeted || 0) - parseFloat(s.actual || 0), 0);
+
+  let cumulative = 0;
+  const historyWithTotal = history.map(h => {
+    cumulative += h.budgeted - h.actual;
+    return { ...h, totalAvailable: parseFloat(cumulative.toFixed(2)) };
+  });
   const progress = budgeted > 0 ? Math.min((actual / budgeted) * 100, 100) : 0;
 
   function prevMonth() {
@@ -221,9 +227,12 @@ export default function Finance() {
           <div className={styles.heroBtns}>
             <button className={styles.heroBtnPrimary} onClick={() => { setBudgetForm({ amount: budgeted > 0 ? String(budgeted) : '', label: '' }); setFormError(''); setShowBudgetModal(true); }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 5v14M5 12h14"/>
+                {budgeted > 0
+                  ? <><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></>
+                  : <path d="M12 5v14M5 12h14"/>
+                }
               </svg>
-              {t.finance.setSalary}
+              {budgeted > 0 ? t.finance.editSalary : t.finance.setSalary}
             </button>
             <button className={styles.heroBtnSecondary} onClick={() => { setExpenseForm({ label: '', amount: '', expense_date: new Date().toISOString().slice(0, 10), category_id: defaultCategoryId }); setFormError(''); setShowExpenseModal(true); }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -300,13 +309,7 @@ export default function Finance() {
             </svg>
             <h3 className={styles.cardTitle}>{t.finance.annualHistory(selectedYear)}</h3>
           </div>
-          {loading ? <div className={styles.chartSkeleton} /> : (() => {
-            let cumulative = 0;
-            const historyWithTotal = history.map(h => {
-              cumulative += h.budgeted - h.actual;
-              return { ...h, totalAvailable: parseFloat(cumulative.toFixed(2)) };
-            });
-            return (
+          {loading ? <div className={styles.chartSkeleton} /> : (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={historyWithTotal} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <defs>
@@ -333,8 +336,7 @@ export default function Finance() {
                 <Area type="monotone" dataKey="totalAvailable" name={t.finance.balanceBar} stroke="#a855f7" fill="url(#balanceGrad)" strokeWidth={2} strokeDasharray="5 3" />
               </AreaChart>
             </ResponsiveContainer>
-            );
-          })()}
+          )}
         </div>
 
         <div className={styles.card}>
