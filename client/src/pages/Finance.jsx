@@ -46,11 +46,11 @@ export default function Finance() {
     setLoading(true);
     try {
       const [sumRes, catRes, histRes, expRes, catsRes] = await Promise.all([
-        fetch(`/finance/summary?months=6`, { headers }),
-        fetch(`/finance/by-category?year=${selectedYear}&month=${selectedMonth}`, { headers }),
-        fetch(`/finance/history?year=${selectedYear}`, { headers }),
-        fetch(`/finance/expenses?year=${selectedYear}&month=${selectedMonth}`, { headers }),
-        fetch(`/categories`, { headers }),
+        fetch(`/api/finance/summary?months=6`, { headers }),
+        fetch(`/api/finance/by-category?year=${selectedYear}&month=${selectedMonth}`, { headers }),
+        fetch(`/api/finance/history?year=${selectedYear}`, { headers }),
+        fetch(`/api/finance/expenses?year=${selectedYear}&month=${selectedMonth}`, { headers }),
+        fetch(`/api/categories`, { headers }),
       ]);
 
       if (sumRes.ok) setSummary(await sumRes.json());
@@ -94,7 +94,7 @@ export default function Finance() {
     setFormError('');
     setSaving(true);
     try {
-      const res = await fetch('/finance/income', {
+      const res = await fetch('/api/finance/income', {
         method: 'POST',
         headers,
         body: JSON.stringify({ year: selectedYear, month: selectedMonth, amount: parseFloat(budgetForm.amount), label: budgetForm.label || 'Salaire' }),
@@ -120,7 +120,7 @@ export default function Finance() {
         expense_date: expenseForm.expense_date,
         category_id: expenseForm.category_id ? Number(expenseForm.category_id) : null,
       });
-      const res = await fetch(editingExpense ? `/finance/expenses/${editingExpense.id}` : '/finance/expenses', {
+      const res = await fetch(editingExpense ? `/api/finance/expenses/${editingExpense.id}` : '/api/finance/expenses', {
         method: editingExpense ? 'PUT' : 'POST',
         headers,
         body,
@@ -149,7 +149,7 @@ export default function Finance() {
   }
 
   async function deleteExpense(id) {
-    await fetch(`/finance/expenses/${id}`, { method: 'DELETE', headers });
+    await fetch(`/api/finance/expenses/${id}`, { method: 'DELETE', headers });
     setConfirmDeleteId(null);
     fetchAll();
   }

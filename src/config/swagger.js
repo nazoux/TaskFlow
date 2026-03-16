@@ -11,8 +11,8 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === "production"
-          ? process.env.BACKEND_URL || "https://ton-api.railway.app"
-          : "http://localhost:3000",
+          ? `${process.env.BACKEND_URL || "https://ton-api.railway.app"}/api`
+          : "http://localhost:3000/api",
         description: process.env.NODE_ENV === "production" ? "Production" : "Local"
       }
     ],

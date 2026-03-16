@@ -53,7 +53,7 @@ export default function TaskModal({ task, categories, token, onClose }) {
     };
 
     try {
-      const url = isEdit ? `/tasks/${task.id}` : '/tasks';
+      const url = isEdit ? `/api/tasks/${task.id}` : '/api/tasks';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {

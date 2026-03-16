@@ -28,7 +28,7 @@ function CategoryModal({ category, token, onClose }) {
     setError('');
     setLoading(true);
     try {
-      const url = isEdit ? `/categories/${category.id}` : '/categories';
+      const url = isEdit ? `/api/categories/${category.id}` : '/api/categories';
       const method = isEdit ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,
@@ -123,8 +123,8 @@ export default function Categories() {
   async function fetchAll() {
     setLoading(true);
     const [catRes, taskRes] = await Promise.all([
-      fetch('/categories', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/tasks', { headers: { Authorization: `Bearer ${token}` } }),
+      fetch('/api/categories', { headers: { Authorization: `Bearer ${token}` } }),
+      fetch('/api/tasks', { headers: { Authorization: `Bearer ${token}` } }),
     ]);
     if (catRes.status === 401) { logout(); return; }
     const catData = await catRes.json();
@@ -149,7 +149,7 @@ export default function Categories() {
 
   async function deleteCategory(id) {
     if (!window.confirm(t.categories.deleteConfirm)) return;
-    const res = await fetch(`/categories/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`/api/categories/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     if (res.ok) {
       toast(t.categories.categoryDeleted);
       fetchCategories();

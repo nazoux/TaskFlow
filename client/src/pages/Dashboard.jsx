@@ -76,8 +76,8 @@ export default function Dashboard() {
     const month = now.getMonth() + 1;
     const h = { Authorization: `Bearer ${token}` };
     const [catRes, sumRes] = await Promise.all([
-      fetch(`/finance/by-category?year=${year}&month=${month}`, { headers: h }),
-      fetch(`/finance/summary?months=1`, { headers: h }),
+      fetch(`/api/finance/by-category?year=${year}&month=${month}`, { headers: h }),
+      fetch(`/api/finance/summary?months=1`, { headers: h }),
     ]);
     if (catRes.ok) setFinanceByCategory(await catRes.json());
     if (sumRes.ok) {
@@ -88,7 +88,7 @@ export default function Dashboard() {
 
   async function fetchTasks() {
     setLoading(true);
-    const res = await fetch('/tasks', { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch('/api/tasks', { headers: { Authorization: `Bearer ${token}` } });
     if (res.status === 401) { logout(); return; }
     const data = await res.json();
     setTasks(data.data || []);
@@ -96,7 +96,7 @@ export default function Dashboard() {
   }
 
   async function fetchCategories() {
-    const res = await fetch('/categories', { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch('/api/categories', { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) return;
     const data = await res.json();
     setCategories(data.data || []);
@@ -109,7 +109,7 @@ export default function Dashboard() {
   }
 
   async function deleteTask(id) {
-    const res = await fetch(`/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     if (res.ok) {
       toast(t.dashboard.taskDeleted);
       setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
@@ -122,7 +122,7 @@ export default function Dashboard() {
   async function deleteBulk() {
     const count = selected.size;
     await Promise.all([...selected].map(id =>
-      fetch(`/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+      fetch(`/api/tasks/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
     ));
     setSelected(new Set());
     toast(t.dashboard.tasksDeleted(count));
@@ -132,7 +132,7 @@ export default function Dashboard() {
   async function updateTaskStatus(id, status) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-    const res = await fetch(`/tasks/${id}`, {
+    const res = await fetch(`/api/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ title: task.title, status }),

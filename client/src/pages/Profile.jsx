@@ -43,7 +43,7 @@ export default function Profile() {
   }, []);
 
   async function fetchProfile() {
-    const res = await fetch('/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
     if (res.status === 401) { logout(); return; }
     const data = await res.json();
     setProfile(data);
@@ -76,7 +76,7 @@ export default function Profile() {
         return;
       }
 
-      const res = await fetch('/auth/me', {
+      const res = await fetch('/api/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
@@ -106,7 +106,7 @@ export default function Profile() {
     try {
       const formData = new FormData();
       formData.append('avatar', file);
-      const res = await fetch('/auth/me/avatar', {
+      const res = await fetch('/api/auth/me/avatar', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
