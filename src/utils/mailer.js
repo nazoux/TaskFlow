@@ -43,4 +43,36 @@ async function sendResetEmail(toEmail, resetLink) {
   });
 }
 
-module.exports = { sendResetEmail };
+async function sendVerificationEmail(toEmail, verifyLink) {
+  await transporter.sendMail({
+    from: `"TaskFlow" <${process.env.SMTP_USER}>`,
+    to: toEmail,
+    subject: "Confirm your TaskFlow account",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: auto; padding: 32px; background: #f9fafb; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <svg width="40" height="40" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 22l12-8 12 8" stroke="#4a7cbd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 17l12-8 12 8" stroke="#4a7cbd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+            <path d="M6 27l12-8 12 8" stroke="#4a7cbd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+          </svg>
+          <h2 style="color: #1a1a2e; margin: 8px 0 0;">TaskFlow</h2>
+        </div>
+        <h3 style="color: #1a1a2e;">Confirm your email address</h3>
+        <p style="color: #555; line-height: 1.6;">
+          Thanks for signing up! Click the button below to verify your email and activate your account.
+        </p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${verifyLink}" style="background: #4a7cbd; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+            Verify my email
+          </a>
+        </div>
+        <p style="color: #999; font-size: 13px;">
+          If you didn't create a TaskFlow account, you can safely ignore this email.
+        </p>
+      </div>
+    `
+  });
+}
+
+module.exports = { sendResetEmail, sendVerificationEmail };

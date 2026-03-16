@@ -103,6 +103,29 @@ router.post("/forgot-password", authController.forgotPassword);
 
 /**
  * @swagger
+ * /auth/verify-email:
+ *   get:
+ *     summary: Vérifier l'email avec un token
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token de vérification reçu par email
+ *     responses:
+ *       200:
+ *         description: Email vérifié avec succès
+ *       400:
+ *         description: Token invalide ou expiré
+ *       500:
+ *         description: Erreur serveur
+ */
+router.get("/verify-email", authController.verifyEmail);
+
+/**
+ * @swagger
  * /auth/reset-password:
  *   post:
  *     summary: Réinitialiser le mot de passe avec un token

@@ -26,7 +26,11 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || t.auth.loginFailed);
+        if (res.status === 403) {
+          setError(t.auth.emailNotVerified);
+        } else {
+          setError(data.message || t.auth.loginFailed);
+        }
         return;
       }
 

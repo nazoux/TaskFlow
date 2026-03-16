@@ -8,6 +8,7 @@ export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { t } = useLang();
 
   function handleChange(e) {
@@ -29,17 +30,52 @@ export default function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        const detail = data.errors?.[0]?.msg;
-        setError(detail || data.message || t.auth.registrationFailed);
+        if (res.status === 409) {
+          const msg = data.message || '';
+          if (msg.toLowerCase().includes('email')) {
+            setError(t.auth.emailAlreadyUsed);
+          } else if (msg.toLowerCase().includes('username')) {
+            setError(t.auth.usernameAlreadyTaken);
+          } else {
+            setError(t.auth.registrationFailed);
+          }
+        } else {
+          const detail = data.errors?.[0]?.msg;
+          setError(detail || data.message || t.auth.registrationFailed);
+        }
         return;
       }
 
-      navigate('/login');
+      setSubmitted(true);
     } catch {
       setError(t.auth.networkError);
     } finally {
       setLoading(false);
     }
+  }
+
+  if (submitted) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <div className={styles.logo}>
+            <svg className={styles.logoIcon} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 22l12-8 12 8" stroke="#4a7cbd" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 17l12-8 12 8" stroke="#4a7cbd" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.6"/>
+              <path d="M6 27l12-8 12 8" stroke="#4a7cbd" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.3"/>
+            </svg>
+            <span className={styles.logoText}>TaskFlow</span>
+          </div>
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
+            <h2 style={{ color: '#1a1a2e', marginBottom: 8 }}>{t.auth.verifyEmailTitle}</h2>
+            <p style={{ color: '#555', lineHeight: 1.6, marginBottom: 8 }}>{t.auth.verifyEmailDesc(form.email)}</p>
+            <p style={{ color: '#999', fontSize: 13 }}>{t.auth.verifyEmailNote}</p>
+          </div>
+          <p className={styles.switchText}><a href="/login">{t.auth.backToLogin}</a></p>
+        </div>
+      </div>
+    );
   }
 
   return (

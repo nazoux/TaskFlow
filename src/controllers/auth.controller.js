@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const { User, Category } = require("../models");
-const { sendResetEmail } = require("../utils/mailer");
+const { sendResetEmail, sendVerificationEmail } = require("../utils/mailer");
 
 exports.register = async (req, res) => {
   try {
@@ -27,17 +27,35 @@ exports.register = async (req, res) => {
       });
     }
 
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) {
+      return res.status(409).json({
+        message: "Username already taken"
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const verifyToken = crypto.randomBytes(32).toString("hex");
 
     const user = await User.create({
       username,
       email,
       password_hash: hashedPassword,
-      created_at: new Date()
+      created_at: new Date(),
+      is_verified: false,
+      verify_token: verifyToken
     });
 
     // Create default "Misc" category for new users
     await Category.create({ name: "Misc", color: "#f59e0b", user_id: user.id });
+
+    const verifyLink = `${process.env.FRONTEND_URL}verify-email?token=${verifyToken}`;
+    try {
+      await sendVerificationEmail(email, verifyLink);
+    } catch (mailError) {
+      console.error("Failed to send verification email:", mailError.message);
+    }
 
     res.status(201).json({
       message: "User created",
@@ -49,9 +67,8 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Internal server error"
-    });
+    console.error("register error:", error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -81,6 +98,12 @@ exports.login = async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({
         message: "Invalid credentials"
+      });
+    }
+
+    if (!user.is_verified) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in."
       });
     }
 
@@ -160,6 +183,24 @@ exports.updateMe = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ message: "Token required" });
+
+    const user = await User.findOne({ where: { verify_token: token } });
+    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+
+    user.is_verified = true;
+    user.verify_token = null;
+    await user.save();
+
+    res.json({ message: "Email verified successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
