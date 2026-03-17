@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,11 +10,11 @@
 }
 
 .modal {
-  background: #fff;
+  background: var(--bg-surface);
   border-radius: 16px;
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
@@ -28,7 +28,7 @@
 .modalTitle {
   font-size: 18px;
   font-weight: 700;
-  color: #1a2b4a;
+  color: var(--text-primary);
 }
 
 .closeBtn {
@@ -36,8 +36,8 @@
   height: 32px;
   border-radius: 8px;
   border: none;
-  background: #f0f4fa;
-  color: #718096;
+  background: var(--bg-surface3);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,15 +46,15 @@
 }
 
 .closeBtn:hover {
-  background: #e2e8f0;
-  color: #1a2b4a;
+  background: var(--border);
+  color: var(--text-primary);
 }
 
 .error {
   margin: 12px 24px 0;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #dc2626;
+  background: var(--red-light);
+  border: 1px solid var(--red-border);
+  color: var(--red-hover);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 13px;
@@ -82,22 +82,22 @@
 .field label {
   font-size: 13px;
   font-weight: 500;
-  color: #1a2b4a;
+  color: var(--text-primary);
 }
 
 .required {
-  color: #ef4444;
+  color: var(--red);
 }
 
 .field input,
 .field select,
 .field textarea {
   padding: 10px 14px;
-  background: #f0f4fa;
+  background: var(--bg-input);
   border: 1.5px solid transparent;
   border-radius: 9px;
   font-size: 14px;
-  color: #1a2b4a;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s, background 0.2s;
   font-family: inherit;
@@ -107,14 +107,14 @@
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: #a0aec0;
+  color: var(--text-placeholder);
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: #4a7cbd;
-  background: #fff;
+  border-color: var(--brand);
+  background: var(--bg-surface);
 }
 
 .field textarea {
@@ -140,23 +140,23 @@
 
 .cancelBtn {
   padding: 10px 20px;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid var(--border);
   border-radius: 9px;
-  background: #fff;
+  background: var(--bg-surface);
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-medium);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .cancelBtn:hover {
-  background: #f0f4fa;
+  background: var(--bg-surface3);
 }
 
 .submitBtn {
   padding: 10px 24px;
-  background: #4a7cbd;
+  background: var(--brand);
   color: #fff;
   border: none;
   border-radius: 9px;
@@ -167,7 +167,7 @@
 }
 
 .submitBtn:hover {
-  background: #3a6aad;
+  background: var(--brand-hover);
 }
 
 .submitBtn:disabled {

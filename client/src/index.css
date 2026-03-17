@@ -4,7 +4,111 @@
   padding: 0;
 }
 
+:root {
+  /* Backgrounds */
+  --bg-page: linear-gradient(160deg, #e8edf5 0%, #dde5f0 50%, #e4eaf4 100%);
+  --bg-auth: #e8edf5;
+  --bg-surface: #ffffff;
+  --bg-surface2: #f8fafc;
+  --bg-surface3: #f0f4fa;
+  --bg-input: #f0f4fa;
+  --bg-hover: #f1f5f9;
+  --bg-hover2: #fafbff;
+  --bg-skeleton-from: #f0f4fa;
+  --bg-skeleton-to: #e2e8f0;
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-light: #f0f4fa;
+
+  /* Text */
+  --text-primary: #1a2b4a;
+  --text-secondary: #718096;
+  --text-muted: #94a3b8;
+  --text-placeholder: #a0aec0;
+  --text-medium: #4a5568;
+  --text-body: #2d3748;
+
+  /* Brand */
+  --brand: #4a7cbd;
+  --brand-hover: #3a6aad;
+  --brand-light: #eff6ff;
+  --brand-light2: #dbeafe;
+
+  /* Semantic */
+  --red: #ef4444;
+  --red-hover: #dc2626;
+  --red-light: #fef2f2;
+  --red-border: #fca5a5;
+  --green: #22c55e;
+  --green-light: #f0fdf4;
+  --green-light2: #bbf7d0;
+  --orange: #f97316;
+  --orange-light: #fff7ed;
+  --blue: #3b82f6;
+  --blue-light: #eff6ff;
+
+  /* Hero (dark gradient — stays dark in both modes) */
+  --hero-bg: linear-gradient(135deg, #1a2b4a 0%, #2d4a7a 100%);
+  --hero-btn-bg: #ffffff;
+  --hero-btn-color: #1a2b4a;
+  --hero-btn-hover: #f0f4fa;
+}
+
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-page: linear-gradient(160deg, #0f1623 0%, #111827 50%, #131c2e 100%);
+  --bg-auth: #0f1623;
+  --bg-surface: #1e2535;
+  --bg-surface2: #1a2030;
+  --bg-surface3: #242b3d;
+  --bg-input: #242b3d;
+  --bg-hover: #2a3347;
+  --bg-hover2: #1f2840;
+  --bg-skeleton-from: #242b3d;
+  --bg-skeleton-to: #2e3650;
+
+  /* Borders */
+  --border: #2e3a52;
+  --border-light: #253045;
+
+  /* Text */
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-placeholder: #4a5568;
+  --text-medium: #94a3b8;
+  --text-body: #cbd5e0;
+
+  /* Brand */
+  --brand: #5b8fd4;
+  --brand-hover: #4a7cbd;
+  --brand-light: #1e2f4a;
+  --brand-light2: #1a3256;
+
+  /* Semantic */
+  --red: #f87171;
+  --red-hover: #ef4444;
+  --red-light: #2d1a1a;
+  --red-border: #7f1d1d;
+  --green: #4ade80;
+  --green-light: #142b1e;
+  --green-light2: #166534;
+  --orange: #fb923c;
+  --orange-light: #2d1e0f;
+  --blue: #60a5fa;
+  --blue-light: #1e2f4a;
+
+  /* Hero */
+  --hero-bg: linear-gradient(135deg, #0f1a2e 0%, #1a2b4a 100%);
+  --hero-btn-bg: rgba(255,255,255,0.12);
+  --hero-btn-color: #ffffff;
+  --hero-btn-hover: rgba(255,255,255,0.2);
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #1a2b4a;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  transition: background 0.3s, color 0.3s;
 }

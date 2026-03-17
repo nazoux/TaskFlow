@@ -6,10 +6,10 @@
 }
 
 .column {
-  background: #fff;
+  background: var(--bg-surface);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .colHeader {
@@ -18,13 +18,13 @@
   justify-content: space-between;
   padding: 14px 16px;
   border-top: 3px solid transparent;
-  border-bottom: 1px solid #f0f4fa;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .colTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #1a2b4a;
+  color: var(--text-primary);
 }
 
 .colCount {
@@ -47,27 +47,27 @@
 
 .emptyCol {
   text-align: center;
-  color: #a0aec0;
+  color: var(--text-placeholder);
   font-size: 13px;
   padding: 16px 0;
 }
 
 .card {
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: var(--bg-surface2);
+  border: 1.5px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
   transition: box-shadow 0.15s, border-color 0.15s;
 }
 
 .card:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-color: #cbd5e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  border-color: var(--text-muted);
 }
 
 .cardOverdue {
-  border-color: #fca5a5;
-  background: #fff5f5;
+  border-color: var(--red-border);
+  background: var(--red-light);
 }
 
 .cardTop {
@@ -81,7 +81,7 @@
 .cardTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #1a2b4a;
+  color: var(--text-primary);
   flex: 1;
   line-height: 1.4;
 }
@@ -104,14 +104,14 @@
   transition: background 0.15s;
 }
 
-.cardEdit  { background: #eff6ff; color: #3b82f6; }
-.cardEdit:hover  { background: #dbeafe; }
-.cardDelete { background: #fef2f2; color: #ef4444; }
-.cardDelete:hover { background: #fee2e2; }
+.cardEdit  { background: var(--brand-light); color: var(--blue); }
+.cardEdit:hover  { background: var(--brand-light2); }
+.cardDelete { background: var(--red-light); color: var(--red); }
+.cardDelete:hover { background: var(--red-border); }
 
 .cardDesc {
   font-size: 12px;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   line-height: 1.5;
   display: -webkit-box;
@@ -147,7 +147,7 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 .catDot {
@@ -159,43 +159,40 @@
 
 .cardDate {
   font-size: 11px;
-  color: #a0aec0;
+  color: var(--text-placeholder);
 }
 
 .cardDateOverdue {
-  color: #ef4444;
+  color: var(--red);
   font-weight: 600;
 }
 
-/* ─── Drag handle ─────────────────────────────────────────────────────────── */
 .dragHandle {
-  color: #cbd5e0;
+  color: var(--border);
   flex-shrink: 0;
   margin-top: 2px;
   cursor: grab;
 }
 
-/* ─── Column drop target ──────────────────────────────────────────────────── */
 .columnOver {
-  outline: 2px dashed #93c5fd;
+  outline: 2px dashed var(--blue);
   outline-offset: -2px;
 }
 
 .cardsOver {
-  background: #eff6ff;
+  background: var(--brand-light);
   border-radius: 0 0 14px 14px;
 }
 
 .emptyColOver {
-  color: #3b82f6;
+  color: var(--blue);
   font-weight: 600;
 }
 
-/* ─── Drag overlay (floating ghost card) ─────────────────────────────────── */
 .cardOverlayStyle {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border-color: #93c5fd;
-  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: var(--blue);
+  background: var(--bg-surface);
   transform: rotate(2deg);
   cursor: grabbing;
 }
